@@ -7,3 +7,318 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* ============================================================
+   Toast notifications (top-right stack)
+   ============================================================ */
+.toast-host {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: min(360px, calc(100vw - 36px));
+    pointer-events: none;
+}
+
+.toast {
+    pointer-events: auto;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    overflow: hidden;
+    border-radius: 14px;
+    background: linear-gradient(160deg, #ffffff, #f4f7ff);
+    border: 1px solid rgba(10, 22, 51, 0.10);
+    box-shadow: 0 18px 40px -12px rgba(2, 6, 23, 0.28);
+    padding: 14px 14px 13px;
+    opacity: 0;
+    transform: translateX(24px);
+    transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+.toast-enter {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast-leave {
+    opacity: 0;
+    transform: translateX(24px);
+}
+
+.toast::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #2563eb;
+}
+
+.toast-success::before {
+    background: linear-gradient(180deg, #10b981, #059669);
+}
+
+.toast-error::before {
+    background: linear-gradient(180deg, #ef4444, #dc2626);
+}
+
+.toast-info::before {
+    background: linear-gradient(180deg, #2563eb, #0018f9);
+}
+
+.toast-icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    color: #fff;
+}
+
+.toast-success .toast-icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 6px 14px -6px rgba(16, 185, 129, 0.7);
+}
+
+.toast-error .toast-icon {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 6px 14px -6px rgba(239, 68, 68, 0.7);
+}
+
+.toast-info .toast-icon {
+    background: linear-gradient(135deg, #2563eb, #0018f9);
+    box-shadow: 0 6px 14px -6px rgba(0, 24, 249, 0.7);
+}
+
+.toast-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.toast-title {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #0a1633;
+}
+
+.toast-message {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: #475569;
+}
+
+.toast-close {
+    flex: none;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    padding: 2px;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.toast-close:hover {
+    color: #0a1633;
+}
+
+.toast-bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 100%;
+    transform-origin: left;
+    transform: scaleX(1);
+    animation: toast-progress linear forwards;
+    background: linear-gradient(90deg, #0018f9, #38bdf8);
+}
+
+.toast-success .toast-bar {
+    background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.toast-error .toast-bar {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.toast-info .toast-bar {
+    background: linear-gradient(90deg, #2563eb, #38bdf8);
+}
+
+@keyframes toast-progress {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}
+
+/* ============================================================
+   Success / confirmation modal
+   ============================================================ */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(10, 22, 51, 0.55);
+    backdrop-filter: blur(5px);
+    opacity: 0;
+    transition: opacity 0.22s ease;
+}
+
+.modal-overlay.modal-visible {
+    opacity: 1;
+}
+
+.modal-hidden {
+    display: none;
+}
+
+.modal-card {
+    position: relative;
+    width: min(400px, 100%);
+    overflow: hidden;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 24, 249, 0.18);
+    background: linear-gradient(170deg, #ffffff, #f2f6ff);
+    box-shadow: 0 30px 70px -20px rgba(2, 6, 23, 0.5);
+    padding: 34px 28px 28px;
+    text-align: center;
+    transform: translateY(16px) scale(0.96);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-visible .modal-card {
+    transform: translateY(0) scale(1);
+}
+
+.modal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0018f9, #38bdf8, #0018f9);
+}
+
+.modal-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    color: #fff;
+    margin-bottom: 16px;
+}
+
+.modal-icon svg {
+    width: 30px;
+    height: 30px;
+}
+
+.modal-icon-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.15), 0 10px 24px -8px rgba(5, 150, 105, 0.6);
+}
+
+.modal-icon-error {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.15), 0 10px 24px -8px rgba(220, 38, 38, 0.6);
+}
+
+.modal-icon-info {
+    background: linear-gradient(135deg, #2563eb, #0018f9);
+    box-shadow: 0 0 0 8px rgba(0, 24, 249, 0.15), 0 10px 24px -8px rgba(0, 24, 249, 0.6);
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #0a1633;
+}
+
+.modal-message {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #475569;
+}
+
+.modal-close-btn {
+    margin-top: 22px;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(90deg, #0018f9, #0080fe);
+    box-shadow: 0 8px 18px -6px rgba(0, 24, 249, 0.55);
+    transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.modal-close-btn:hover {
+    filter: brightness(1.1);
+}
+
+.modal-close-btn:active {
+    transform: scale(0.98);
+}
+
+/* ============================================================
+   Custom inline field validation
+   ============================================================ */
+.field-error {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #dc2626;
+}
+
+.field-invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+.field-shake {
+    animation: field-shake 0.4s ease;
+}
+
+@keyframes field-shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-5px);
+    }
+    40% {
+        transform: translateX(5px);
+    }
+    60% {
+        transform: translateX(-3px);
+    }
+    80% {
+        transform: translateX(3px);
+    }
+}
