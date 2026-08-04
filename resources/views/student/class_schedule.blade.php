@@ -9,13 +9,13 @@
     </div>
 
     <p class="mb-4 text-[13px] text-[#0a1633]/60">
-        Semester <strong>{{ $currentSem }}</strong> &middot; schedule shown for the active/current semester only.
+        Term <strong>{{ $currentTerm }}</strong> &middot; schedule shown for the active/current term only.
     </p>
 
     @if ($schedule->isEmpty())
         <div class="relative overflow-hidden rounded-xl border border-[#0018f9]/15 bg-white/80 p-10 text-center shadow-[0_8px_24px_-10px_rgba(0,24,249,0.18)]">
             <div class="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#0018f9] via-[#38bdf8] to-[#0018f9]"></div>
-            <h3 class="m-0 text-[16px] font-semibold text-[#0a1633]">No Classes for Semester {{ $currentSem }} Yet</h3>
+            <h3 class="m-0 text-[16px] font-semibold text-[#0a1633]">No Classes for Term {{ $currentTerm }} Yet</h3>
             <p class="mt-1.5 text-[14px] text-slate-500">Await teacher/adviser enrollment. <a href="{{ route('student.enrollment') }}" class="font-medium text-[#0018f9] hover:underline">Submit Request</a>.</p>
         </div>
     @else

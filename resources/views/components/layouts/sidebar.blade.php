@@ -33,8 +33,8 @@
             ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'icon' => 'grid'],
             ['label' => 'Manage Accounts', 'route' => 'admin.accounts', 'icon' => 'users'],
             ['label' => 'Create Account', 'route' => 'admin.accounts.create', 'icon' => 'plus'],
-            ['label' => 'Teachers Approval', 'route' => 'admin.approve-teachers', 'icon' => 'badge'],
             ['label' => 'Enrollment Settings', 'route' => 'admin.enrollment-settings', 'icon' => 'sliders'],
+            ['label' => 'Teacher Advisory', 'route' => 'admin.teacher-advisory', 'icon' => 'book'],
         ],
         'teacher' => [
             ['label' => 'Dashboard', 'route' => 'teacher.dashboard', 'icon' => 'grid'],
@@ -42,11 +42,9 @@
             ['label' => 'Enrollment Requests', 'route' => 'teacher.enrollment-requests', 'icon' => 'clipboard'],
             ['label' => 'Submit Grades', 'route' => 'teacher.submit-grades', 'icon' => 'tick'],
             ['label' => 'Grades Overview', 'route' => 'teacher.grades-overview', 'icon' => 'chart'],
-            ['label' => 'Teacher Info', 'route' => 'teacher.info', 'icon' => 'person'],
         ],
         'student' => [
             ['label' => 'Dashboard', 'route' => 'student.dashboard', 'icon' => 'grid'],
-            ['label' => 'Student Info', 'route' => 'student.info', 'icon' => 'person'],
             ['label' => 'Class Schedule', 'route' => 'student.schedule', 'icon' => 'calendar'],
             ['label' => 'Grades', 'route' => 'student.grades', 'icon' => 'chart'],
             ['label' => 'Enrollment Request', 'route' => 'student.enrollment', 'icon' => 'clipboard'],
@@ -55,6 +53,7 @@
     };
 
     $secondaryItems = [
+        ['label' => 'My Info', 'route' => $role === 'student' ? 'student.info' : ($role === 'teacher' ? 'teacher.info' : ''), 'icon' => 'person', 'role' => ['student', 'teacher']],
         ['label' => 'Change Password', 'route' => 'password.change', 'icon' => 'key'],
         ['label' => 'About Us', 'route' => 'about', 'icon' => 'info'],
         ['label' => 'Contact Us', 'route' => 'contact', 'icon' => 'phone'],
@@ -67,37 +66,37 @@
 
 <div id="sidebar-overlay" class="fixed inset-0 z-30 hidden bg-slate-900/60 backdrop-blur-sm lg:hidden"></div>
 
-<aside id="app-sidebar"
-       class="fixed inset-y-0 left-0 z-40 flex w-[264px] -translate-x-full flex-col overflow-hidden border-r border-white/10 bg-gradient-to-b from-[#0a1633] via-[#0d2450] to-[#164aa8] transition-transform duration-300 lg:translate-x-0">
+    <aside id="app-sidebar"
+           class="fixed inset-y-0 left-0 z-40 flex w-[264px] -translate-x-full flex-col border-r border-white/10 bg-gradient-to-b from-[#0a1633] via-[#0d2450] to-[#164aa8] transition-all duration-300 lg:translate-x-0">
 
     {{-- Futuristic background --}}
     <x-decorative-background :grid-size="'30px'" />
 
     <div class="relative z-10 flex flex-1 flex-col">
         {{-- Logo --}}
-        <a href="{{ $homeUrl }}" class="flex items-center gap-3 border-b border-white/10 px-5 py-5 no-underline">
-            <img src="{{ asset('images/dmnhs-no-bg.jpg') }}" alt="School Logo"
-                 class="h-11 w-11 rounded-[10px] border border-white/30 bg-white/10 object-cover shadow-[0_0_18px_rgba(45,125,246,0.45)]">
-            <div>
-                <span class="block text-[14px] font-bold leading-tight text-white">DMMNHS</span>
-                <span class="block text-[11px] tracking-wide text-white/60">Student Portal</span>
-            </div>
-        </a>
+        <a href="{{ $homeUrl }}" class="sidebar-logo flex items-center gap-3 border-b border-white/10 px-5 py-5 no-underline">
+             <img src="{{ asset('images/dmnhs-no-bg.jpg') }}" alt="School Logo"
+                  class="h-11 w-11 rounded-[10px] border border-white/30 bg-white/10 object-cover shadow-[0_0_18px_rgba(45,125,246,0.45)]">
+             <div>
+                 <span class="sidebar-brand-text block text-[14px] font-bold leading-tight text-white">DMMNHS</span>
+                 <span class="sidebar-brand-text block text-[11px] tracking-wide text-white/60">Student Portal</span>
+             </div>
+         </a>
 
         {{-- Profile chip --}}
-        <div class="mx-4 mt-4 flex items-center gap-2.5 rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 backdrop-blur">
-            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#38bdf8] to-[#2563eb] text-[14px] font-bold text-white shadow-[0_0_12px_rgba(56,189,248,0.5)]">
-                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-            </div>
-            <div class="min-w-0">
-                <p class="truncate text-[13px] font-semibold text-white">{{ auth()->user()->name }}</p>
-                <p class="text-[11px] capitalize text-white/55">{{ auth()->user()->role }}</p>
-            </div>
-        </div>
+        <div class="sidebar-profile mx-4 mt-4 flex items-center gap-2.5 rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 backdrop-blur">
+             <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#38bdf8] to-[#2563eb] text-[14px] font-bold text-white shadow-[0_0_12px_rgba(56,189,248,0.5)]">
+                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+             </div>
+             <div class="sidebar-chip-text min-w-0">
+                 <p class="truncate text-[13px] font-semibold text-white">{{ auth()->user()->name }}</p>
+                 <p class="text-[11px] capitalize text-white/55">{{ auth()->user()->role }}</p>
+             </div>
+         </div>
 
         {{-- Navigation --}}
-        <nav class="mt-4 flex-1 overflow-y-auto px-3 pb-4">
-            <p class="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">Menu</p>
+        <nav class="sidebar-nav mt-4 flex-1 overflow-y-auto px-3 pb-4">
+            <p class="sidebar-section-label px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">Menu</p>
             <ul class="grid gap-1">
                 @foreach ($items as $item)
                     @php
@@ -114,16 +113,19 @@
                                  class="{{ $active ? 'text-[#7dc6ff]' : 'text-white/45 group-hover:text-white/80' }} h-[18px] w-[18px] shrink-0">
                                 {!! $icon($item['icon']) !!}
                             </svg>
-                            <span>{{ $item['label'] }}</span>
+                             <span class="sidebar-label">{{ $item['label'] }}</span>
                         </a>
                     </li>
                 @endforeach
             </ul>
 
-            <p class="mb-1.5 mt-4 px-2 pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">Account</p>
-            <div class="grid gap-1">
+            <p class="sidebar-section-label mb-1.5 mt-4 px-2 pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">Account</p>
+            <div class="sidebar-secondary-nav grid gap-1">
                 @foreach ($secondaryItems as $item)
                     @php
+                        if ($item['route'] === '' || ! empty($item['role']) && ! in_array($role, $item['role'])) {
+                            continue;
+                        }
                         $active = request()->routeIs($item['route']);
                     @endphp
                     <li class="list-none">
@@ -136,22 +138,33 @@
                                  stroke="currentColor" class="h-[18px] w-[18px] shrink-0 text-white/45">
                                 {!! $icon($item['icon']) !!}
                             </svg>
-                            <span>{{ $item['label'] }}</span>
+                             <span class="sidebar-label">{{ $item['label'] }}</span>
                         </a>
                     </li>
                 @endforeach
             </div>
-        </nav>
+         </nav>
 
         {{-- Logout footer --}}
-        <div class="border-t border-white/10 p-3">
+        <div class="sidebar-footer border-t border-white/10 p-3">
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 transition hover:bg-[#dc2626]/15 hover:text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-[18px] w-[18px] shrink-0 text-white/50">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
                 </svg>
-                <span>Logout</span>
+                <span class="sidebar-label">Logout</span>
             </a>
         </div>
     </div>
+
+    {{-- Sidebar edge collapse toggle --}}
+    <button id="sidebar-collapse-toggle" type="button" aria-label="Collapse sidebar"
+            class="sidebar-collapse-btn hidden lg:inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#a78bfa]/25 bg-[#8b5cf6]/25 text-[#c4b5f5] backdrop-blur transition hover:bg-[#a78bfa]/35 hover:text-white">
+        <svg data-sidebar-arrow-open class="sidebar-arrow sidebar-arrow-open h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+        </svg>
+        <svg data-sidebar-arrow-closed class="sidebar-arrow sidebar-arrow-closed h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        </svg>
+    </button>
 </aside>

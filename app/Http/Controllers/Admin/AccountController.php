@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\Setting;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Models\TeacherApproval;
 use App\Models\User;
 use App\Rules\PasswordPolicy;
 use Illuminate\Http\RedirectResponse;
@@ -68,7 +70,7 @@ class AccountController extends Controller
         $validated = $request->validated();
 
         $role = $validated['role'];
-        $status = $role === 'teacher' ? 'inactive' : 'active';
+        $status = 'active';
 
         $user = User::create([
             'name' => $validated['name'],
@@ -91,11 +93,24 @@ class AccountController extends Controller
         }
 
         if ($role === 'teacher') {
-            Teacher::create([
+            $settings = Setting::find(1);
+            $maxStudents = (int) ($validated['max_students'] ?? $settings->max_students_per_class ?? 30);
+            $maxSubjects = (int) ($validated['max_subjects'] ?? $settings->max_subjects_per_teacher ?? 8);
+            $advisoryClass = trim((string) ($validated['advisory_class'] ?? ''));
+
+            $teacher = Teacher::create([
                 'user_id' => $user->id,
-                'max_subjects' => 0,
-                'max_students' => 0,
-                'status' => 'inactive',
+                'advisory_class' => $advisoryClass !== '' ? $advisoryClass : null,
+                'max_subjects' => $maxSubjects,
+                'max_students' => $maxStudents,
+                'status' => 'active',
+            ]);
+
+            TeacherApproval::create([
+                'teacher_id' => $teacher->id,
+                'max_students' => $maxStudents,
+                'max_subjects' => $maxSubjects,
+                'status' => 'approved',
             ]);
         }
 
@@ -205,8 +220,8 @@ class AccountController extends Controller
                 DB::table('subjects')->where('student_id', $studentId)->delete();
                 DB::table('enrollment_requests')->where('student_id', $studentId)->delete();
                 DB::table('assessment_scores')->where('student_id', $studentId)->delete();
-                DB::table('previous_semester_grades')->where('student_id', $studentId)->delete();
-                DB::table('previous_semester_subjects')->where('student_id', $studentId)->delete();
+                DB::table('previous_term_grades')->where('student_id', $studentId)->delete();
+                DB::table('previous_term_subjects')->where('student_id', $studentId)->delete();
             }
 
             if ($teacherId > 0) {
@@ -218,7 +233,7 @@ class AccountController extends Controller
                 DB::table('enrollment_requests')->where('teacher_id', $teacherId)->delete();
                 DB::table('teacher_approval')->where('teacher_id', $teacherId)->delete();
                 DB::table('assessment_scores')->where('teacher_id', $teacherId)->delete();
-                DB::table('previous_semester_subjects')->where('teacher_id', $teacherId)->delete();
+                DB::table('previous_term_subjects')->where('teacher_id', $teacherId)->delete();
                 DB::table('teacher_subjects')->where('teacher_id', $teacherId)->delete();
             }
 

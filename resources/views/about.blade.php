@@ -28,6 +28,6 @@
     </x-card>
     <br>
     <x-card :title="'What This Portal Supports'">
-        <p>Account management, teacher approval with limits, student enrollment requests, class scheduling, and grading workflows with transparent status updates.</p>
+        <p>Account management, teacher profiles with enrollment limits, student enrollment requests, class scheduling, and grading workflows with transparent status updates.</p>
     </x-card>
 </x-layouts.app>

@@ -16,10 +16,11 @@ class SettingSeeder extends Seeder
         DB::table('settings')->updateOrInsert(
             ['id' => 1],
             [
-                'current_semester' => 1,
+                'current_term' => 1,
                 'current_school_year' => '2025-2026',
                 'max_students_per_class' => 30,
                 'max_subjects_per_teacher' => 8,
+                'enrollment_phase' => 'none',
             ]
         );
     }

@@ -15,7 +15,7 @@ class ScheduleController extends Controller
         $student = Student::where('user_id', auth()->id())->first();
         $studentId = (int) ($student->id ?? 0);
 
-        $currentSem = (int) (Setting::find(1)->current_semester ?? 1);
+        $currentTerm = (int) (Setting::find(1)->current_term ?? 1);
         $schedule = [];
 
         if ($studentId > 0) {
@@ -31,7 +31,7 @@ class ScheduleController extends Controller
 
         return view('student.class_schedule', [
             'schedule' => $schedule,
-            'currentSem' => $currentSem,
+            'currentTerm' => $currentTerm,
         ]);
     }
 }

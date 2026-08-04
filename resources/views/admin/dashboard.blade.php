@@ -12,7 +12,7 @@
     </div>
 
     {{-- Stat cards --}}
-    <div class="mb-6 grid grid-cols-2 gap-3.5 lg:grid-cols-5">
+    <div class="mb-6 grid grid-cols-2 gap-3.5 lg:grid-cols-4">
         <div class="relative overflow-hidden rounded-xl border border-[#0018f9]/15 bg-white/80 p-4 shadow-[0_8px_20px_-10px_rgba(0,24,249,0.2)]">
             <div class="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#0018f9] via-[#38bdf8] to-[#0018f9]"></div>
             <p class="m-0 text-2xl font-bold text-[#0018f9]">{{ $stats->students }}</p>
@@ -27,11 +27,6 @@
             <div class="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#0018f9] via-[#38bdf8] to-[#0018f9]"></div>
             <p class="m-0 text-2xl font-bold text-[#0018f9]">{{ $stats->admins }}</p>
             <p class="mt-0.5 text-[12px] font-semibold uppercase tracking-wide text-slate-500">Admins</p>
-        </div>
-        <div class="relative overflow-hidden rounded-xl border border-amber-300/50 bg-white/80 p-4 shadow-[0_1px_20px_-10px_rgba(245,158,11,0.25)]">
-            <div class="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400"></div>
-            <p class="m-0 text-2xl font-bold text-amber-600">{{ $stats->pendingTeachers }}</p>
-            <p class="mt-0.5 text-[12px] font-semibold uppercase tracking-wide text-slate-500">Pending Teachers</p>
         </div>
         <div class="relative col-span-2 overflow-hidden rounded-xl border border-amber-300/50 bg-white/80 p-4 shadow-[0_1px_20px_-10px_rgba(245,158,11,0.25)] lg:col-span-1">
             <div class="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-amber-400 to-yellow-300"></div>
@@ -49,17 +44,17 @@
             <span class="block text-[15px] font-semibold text-[#0a1633]">Manage Accounts</span>
             <span class="mt-0.5 block text-[12.5px] text-slate-500">Create, edit, and manage users.</span>
         </a>
-        <a href="{{ route('admin.approve-teachers') }}" class="group rounded-xl border border-[#0018f9]/15 bg-white/80 p-4 no-underline shadow-[0_6px_18px_-8px_rgba(0,24,249,0.15)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_26px_-10px_rgba(0,24,249,0.3)]">
-            <span class="block text-[15px] font-semibold text-[#0a1633]">Teachers Approval</span>
-            <span class="mt-0.5 block text-[12.5px] text-slate-500">Approve teachers and set limits.</span>
+        <a href="{{ route('admin.accounts.create') }}" class="group rounded-xl border border-[#0018f9]/15 bg-white/80 p-4 no-underline shadow-[0_6px_18px_-8px_rgba(0,24,249,0.15)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_26px_-10px_rgba(0,24,249,0.3)]">
+            <span class="block text-[15px] font-semibold text-[#0a1633]">Create Account</span>
+            <span class="mt-0.5 block text-[12.5px] text-slate-500">Add a new user to the portal.</span>
+        </a>
+        <a href="{{ route('admin.teacher-advisory') }}" class="group rounded-xl border border-[#0018f9]/15 bg-white/80 p-4 no-underline shadow-[0_6px_18px_-8px_rgba(0,24,249,0.15)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_26px_-10px_rgba(0,24,249,0.3)]">
+            <span class="block text-[15px] font-semibold text-[#0a1633]">Teacher Advisory</span>
+            <span class="mt-0.5 block text-[12.5px] text-slate-500">Set advisory classes for teachers.</span>
         </a>
         <a href="{{ route('admin.enrollment-settings') }}" class="rounded-xl border border-[#0018f9]/15 bg-white/80 p-4 no-underline shadow-[0_6px_18px_-8px_rgba(0,24,249,0.15)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_26px_-10px_rgba(0,24,249,0.3)]">
             <span class="block text-[15px] font-semibold text-[#0a1633]">Enrollment Settings</span>
-            <span class="mt-0.5 block text-[12.5px] text-slate-500">Semester &amp; school year controls.</span>
-        </a>
-        <a href="{{ route('admin.accounts.create') }}" class="rounded-xl border border-[#0018f9]/15 bg-white/80 p-4 no-underline shadow-[0_6px_18px_-8px_rgba(0,24,249,0.15)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_26px_-10px_rgba(0,24,249,0.3)]">
-            <span class="block text-[15px] font-semibold text-[#0a1633]">Create Account</span>
-            <span class="mt-0.5 block text-[12.5px] text-slate-500">Add a new user to the portal.</span>
+            <span class="mt-0.5 block text-[12.5px] text-slate-500">Term &amp; school year controls.</span>
         </a>
     </div>
 </x-layouts.app>

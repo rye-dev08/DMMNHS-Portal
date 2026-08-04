@@ -51,7 +51,7 @@
                                 </td>
                                 @foreach ($subjects as $subj)
                                     @php
-                                        $grade = $student['grades'][$subj->id] ?? 'N/A';
+                                        $grade = $student['grades'][$subj->subject_name] ?? 'N/A';
                                         $mapped = \App\Support\GradeFormatter::display($grade);
                                     @endphp
                                     <td class="p-3 text-center" style="border:1px solid #dbe2ea;">

@@ -3,7 +3,6 @@
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EnrollmentSettingController;
-use App\Http\Controllers\Admin\TeacherApprovalController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PasswordController;
@@ -27,12 +26,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
+Route::post('/login', [AuthController::class, 'login'])->name('login.attempt')->middleware('throttle:login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
-Route::post('/contact', [PageController::class, 'submitContact'])->name('contact.submit');
+Route::post('/contact', [PageController::class, 'submitContact'])->name('contact.submit')->middleware('throttle:contact');
 
 /*
 |--------------------------------------------------------------------------
@@ -45,9 +44,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/change-password', [PasswordController::class, 'index'])->name('password.change');
     Route::post('/change-password', [PasswordController::class, 'update'])->name('password.update');
 
-    // JSON endpoint used by the teacher submit-grades form.
-    Route::get('/teacher/subjects', [TeacherGradeController::class, 'getSubjects'])->name('teacher.subjects.json');
-
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('/accounts', [AccountController::class, 'index'])->name('accounts');
@@ -58,12 +54,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/accounts/{user}/toggle-status', [AccountController::class, 'toggleStatus'])->name('accounts.toggle-status');
         Route::post('/accounts/{user}/reset-password', [AccountController::class, 'resetPassword'])->name('accounts.reset-password');
         Route::delete('/accounts/{user}', [AccountController::class, 'destroy'])->name('accounts.destroy');
-        Route::get('/approve-teachers', [TeacherApprovalController::class, 'index'])->name('approve-teachers');
-        Route::post('/approve-teachers', [TeacherApprovalController::class, 'approve'])->name('approve-teachers.approve');
         Route::get('/enrollment-settings', [EnrollmentSettingController::class, 'index'])->name('enrollment-settings');
         Route::post('/enrollment-settings/advisory', [EnrollmentSettingController::class, 'saveAdvisory'])->name('enrollment-settings.advisory');
-        Route::post('/enrollment-settings/end-semester', [EnrollmentSettingController::class, 'endSemester'])->name('enrollment-settings.end-semester');
+        Route::post('/enrollment-settings/end-term', [EnrollmentSettingController::class, 'endTerm'])->name('enrollment-settings.end-term');
         Route::post('/enrollment-settings/end-school-year', [EnrollmentSettingController::class, 'endSchoolYear'])->name('enrollment-settings.end-school-year');
+        Route::post('/enrollment-settings/end-enrollment-phase', [EnrollmentSettingController::class, 'endEnrollmentPhase'])->name('enrollment-settings.end-enrollment-phase');
+        Route::post('/enrollment-settings/new-school-year', [EnrollmentSettingController::class, 'newSchoolYear'])->name('enrollment-settings.new-school-year');
+        Route::get('/teacher-advisory', [EnrollmentSettingController::class, 'advisory'])->name('teacher-advisory');
     });
 
     Route::prefix('teacher')->name('teacher.')->middleware('role:teacher')->group(function () {
@@ -76,13 +73,18 @@ Route::middleware('auth')->group(function () {
         Route::post('/enrollment-requests/reject', [TeacherEnrollmentRequestController::class, 'reject'])->name('enrollment-requests.reject');
         Route::get('/submit-grades', [TeacherGradeController::class, 'index'])->name('submit-grades');
         Route::post('/submit-grades', [TeacherGradeController::class, 'store'])->name('submit-grades.store');
+        Route::get('/subjects', [TeacherGradeController::class, 'getSubjects'])->name('subjects.json');
         Route::get('/grades-overview', [GradesOverviewController::class, 'index'])->name('grades-overview');
         Route::get('/info', [InfoController::class, 'index'])->name('info');
+        Route::get('/info/edit', [InfoController::class, 'edit'])->name('info.edit');
+        Route::put('/info', [InfoController::class, 'update'])->name('info.update');
     });
 
     Route::prefix('student')->name('student.')->middleware('role:student')->group(function () {
         Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
         Route::get('/info', [StudentInfoController::class, 'index'])->name('info');
+        Route::get('/info/edit', [StudentInfoController::class, 'edit'])->name('info.edit');
+        Route::put('/info', [StudentInfoController::class, 'update'])->name('info.update');
         Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule');
         Route::get('/grades', [StudentGradeController::class, 'index'])->name('grades');
         Route::get('/enrollment', [StudentEnrollmentController::class, 'index'])->name('enrollment');

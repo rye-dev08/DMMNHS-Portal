@@ -9,6 +9,74 @@
 }
 
 /* ============================================================
+   Collapsible sidebar (desktop)
+   ============================================================ */
+@media (min-width: 1024px) {
+    body.sidebar-collapsed #app-sidebar {
+        width: 64px;
+    }
+
+    #app-sidebar {
+        transition-property: width;
+        transition-duration: 300ms;
+    }
+
+    body.sidebar-collapsed #app-shell {
+        padding-left: 64px;
+    }
+
+    /* Hide text labels, keep only icons when collapsed */
+    body.sidebar-collapsed .sidebar-label,
+    body.sidebar-collapsed .sidebar-chip-text,
+    body.sidebar-collapsed .sidebar-brand-text {
+        display: none;
+    }
+
+    /* Keep profile avatar visible */
+    body.sidebar-collapsed .sidebar-profile {
+        justify-content: center;
+        padding: 0.5rem;
+    }
+
+    /* Keep logo image visible */
+    body.sidebar-collapsed .sidebar-logo {
+        justify-content: center;
+        padding: 1rem 0;
+    }
+
+    /* Nav items: icon only, centered */
+    body.sidebar-collapsed .sidebar-nav a,
+    body.sidebar-collapsed .sidebar-secondary-nav a,
+    body.sidebar-collapsed .sidebar-footer a {
+        justify-content: center;
+        padding: 0.625rem;
+    }
+
+    /* Section headers (Menu, Account) hidden when collapsed */
+    body.sidebar-collapsed .sidebar-section-label {
+        display: none;
+    }
+
+    /* Arrow toggle */
+    body:not(.sidebar-collapsed) .sidebar-arrow-closed {
+        display: none;
+    }
+
+    body.sidebar-collapsed .sidebar-arrow-open {
+        display: none;
+    }
+
+    /* Toggle button: centered on the right edge of sidebar */
+    .sidebar-collapse-btn {
+        position: absolute;
+        top: 50%;
+        right: -14px;
+        transform: translateY(-50%);
+        z-index: 50;
+    }
+}
+
+/* ============================================================
    Toast notifications (top-right stack)
    ============================================================ */
 .toast-host {
@@ -283,6 +351,49 @@
 
 .modal-close-btn:active {
     transform: scale(0.98);
+}
+
+/* Confirmation modal */
+.modal-card-sm {
+    padding: 30px 26px 26px;
+}
+
+.modal-icon-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.15), 0 10px 24px -8px rgba(220, 38, 38, 0.6);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.modal-btn-ghost {
+    flex: 1;
+    border: 1px solid rgba(10, 22, 51, 0.15);
+    background: #ffffff;
+    color: #0a1633;
+    cursor: pointer;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14.5px;
+    font-weight: 700;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.modal-btn-ghost:hover {
+    background: #f1f5f9;
+}
+
+.modal-btn-confirm {
+    flex: 1;
+    margin-top: 0;
+}
+
+.modal-btn-danger {
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+    box-shadow: 0 8px 18px -6px rgba(220, 38, 38, 0.6);
 }
 
 /* ============================================================

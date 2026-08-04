@@ -150,7 +150,7 @@ class DemoSeeder extends Seeder
                         'subject_id' => $subjectId,
                         'grade' => (string) $gradeValue,
                         'remarks' => $remarks,
-                        'quarter' => 'Sem 1',
+                        'quarter' => 'Term 1',
                         'date_submitted' => now()->subMonths(1),
                     ]);
 

@@ -4,7 +4,11 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 
 class StudentInfoController extends Controller
@@ -58,5 +62,43 @@ class StudentInfoController extends Controller
             'hasProfile' => $hasProfile,
             'advisory' => $advisory,
         ]);
+    }
+
+    public function edit(): View
+    {
+        $student = Student::where('user_id', auth()->id())->with('user')->first();
+
+        return view('student.edit_info', ['student' => $student]);
+    }
+
+    public function update(Request $request): RedirectResponse
+    {
+        $student = Student::where('user_id', auth()->id())->first();
+        $user = User::findOrFail(auth()->id());
+
+        $validated = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'email', 'max:100'],
+            'sex' => ['nullable', 'in:M,F'],
+            'birthday' => ['nullable', 'date'],
+            'age' => ['nullable', 'integer', 'min:1', 'max:99'],
+        ])->validate();
+
+        $user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+        ]);
+
+        if ($student) {
+            $student->update([
+                'sex' => $validated['sex'] ?? null,
+                'birthday' => $validated['birthday'] ?? null,
+                'age' => $validated['age'] ?? null,
+            ]);
+        }
+
+        flash_modal('Your personal information has been updated.', 'success', 'Info Updated');
+
+        return redirect()->route('student.info');
     }
 }

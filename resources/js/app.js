@@ -152,6 +152,82 @@ function showModal(msg, type, title) {
     overlay.querySelector('.modal-close-btn').focus();
 }
 
+// ---- Confirmation modal (replaces native confirm()) ----------
+function showConfirm(message, opts) {
+    const options = opts || {};
+    const title = options.title || 'Are you sure?';
+    const confirmText = options.confirmText || 'Continue';
+    const cancelText = options.cancelText || 'Cancel';
+    const danger = options.danger !== false;
+    const onConfirm = options.onConfirm || (() => {});
+
+    let overlay = document.getElementById('modal-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'modal-overlay';
+        overlay.className = 'modal-overlay';
+        document.body.appendChild(overlay);
+    }
+    overlay.innerHTML = `
+        <div class="modal-card modal-card-sm" role="dialog" aria-modal="true">
+            <div class="modal-icon ${danger ? 'modal-icon-danger' : 'modal-icon-info'}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-6 w-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                </svg>
+            </div>
+            <h2 class="modal-title">${title}</h2>
+            <p class="modal-message">${String(message)}</p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn-ghost" data-confirm-cancel>${cancelText}</button>
+                <button type="button" class="modal-close-btn modal-btn-confirm ${danger ? 'modal-btn-danger' : ''}">${confirmText}</button>
+            </div>
+        </div>`;
+
+    overlay.classList.remove('modal-hidden');
+    requestAnimationFrame(() => overlay.classList.add('modal-visible'));
+
+    const close = () => {
+        overlay.classList.remove('modal-visible');
+        setTimeout(() => overlay.classList.add('modal-hidden'), 220);
+    };
+    overlay.querySelector('[data-confirm-cancel]').addEventListener('click', close);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            close();
+        }
+    });
+    overlay.querySelector('.modal-btn-confirm').addEventListener('click', () => {
+        close();
+        onConfirm();
+    });
+    overlay.querySelector('[data-confirm-cancel]').focus();
+}
+
+// Wire any [data-confirm] submit buttons (inside a form) to the styled modal.
+function initConfirmDialogs() {
+    document.querySelectorAll('button[type="submit"][data-confirm]').forEach((btn) => {
+        if (btn.dataset.confirmBound) {
+            return;
+        }
+        btn.dataset.confirmBound = '1';
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const form = btn.closest('form');
+            const danger = btn.dataset.danger !== undefined ? btn.dataset.danger !== 'false' : true;
+            showConfirm(btn.dataset.confirm, {
+                title: btn.dataset.confirmTitle || 'Are you sure?',
+                confirmText: btn.dataset.confirmText || 'Continue',
+                danger,
+                onConfirm: () => {
+                    if (form) {
+                        form.submit();
+                    }
+                },
+            });
+        });
+    });
+}
+
 // Keep window.alert mapped to the styled toast.
 window.alert = function (msg) {
     showToast(String(msg), 'error');
@@ -361,6 +437,31 @@ function initHeaderMenu() {
     toggle.dataset.bound = '1';
 }
 
+// ---- Desktop sidebar collapse toggle -----------------------------
+function initSidebarCollapse() {
+    const toggle = document.getElementById('sidebar-collapse-toggle');
+    if (!toggle || toggle.dataset.bound) {
+        return;
+    }
+
+    const applyState = (collapsed) => {
+        document.body.classList.toggle('sidebar-collapsed', collapsed);
+        toggle.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+    };
+
+    applyState(localStorage.getItem('sidebar-collapsed') === '1');
+
+    toggle.addEventListener('click', () => {
+        const collapsed = !document.body.classList.contains('sidebar-collapsed');
+        localStorage.setItem('sidebar-collapsed', collapsed ? '1' : '0');
+        applyState(collapsed);
+    });
+    toggle.dataset.bound = '1';
+}
+
 document.addEventListener('DOMContentLoaded', initHeaderMenu);
+document.addEventListener('DOMContentLoaded', initSidebarCollapse);
 document.addEventListener('DOMContentLoaded', initPasswordToggles);
 document.addEventListener('DOMContentLoaded', initFormValidation);
+document.addEventListener('DOMContentLoaded', initConfirmDialogs);
+

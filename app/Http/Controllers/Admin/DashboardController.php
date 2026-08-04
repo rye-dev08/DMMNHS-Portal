@@ -14,7 +14,6 @@ class DashboardController extends Controller
             'students' => DB::table('users')->where('role', 'student')->where('status', 'active')->count(),
             'teachers' => DB::table('users')->where('role', 'teacher')->where('status', 'active')->count(),
             'admins' => DB::table('users')->where('role', 'admin')->where('status', 'active')->count(),
-            'pendingTeachers' => DB::table('teachers')->where('status', 'inactive')->count(),
             'pendingEnrollments' => DB::table('enrollment_requests')->where('status', 'pending')->count(),
         ];
 

@@ -26,6 +26,11 @@ class CreateUserRequest extends FormRequest
             'birthday' => ['nullable', 'date'],
             'age' => ['nullable', 'integer', 'min:1'],
             'grade_level' => ['nullable', 'integer', 'min:1'],
+
+            // Teacher profile fields (only used when role == teacher).
+            'advisory_class' => ['nullable', 'string', 'max:100'],
+            'max_students' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'max_subjects' => ['nullable', 'integer', 'min:1', 'max:30'],
         ];
     }
 }

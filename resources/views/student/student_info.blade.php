@@ -35,6 +35,10 @@
         </div>
     </section>
 
-    <a href="{{ route('student.dashboard') }}"
-       class="mx-auto mt-4 block w-fit rounded-lg bg-gradient-to-r from-[#0018f9] to-[#0080fe] px-4 py-2 font-semibold text-white no-underline shadow-[0_4px_14px_-4px_rgba(0,24,249,0.6)] transition hover:brightness-110">Back to Dashboard</a>
+    <div class="mx-auto mt-4 flex w-fit items-center gap-3">
+        <a href="{{ route('student.info.edit') }}"
+           class="rounded-lg bg-gradient-to-r from-[#0018f9] to-[#0080fe] px-4 py-2 font-semibold text-white no-underline shadow-[0_4px_14px_-4px_rgba(0,24,249,0.6)] transition hover:brightness-110">Edit Info</a>
+        <a href="{{ route('student.dashboard') }}"
+           class="rounded-lg border border-[#0018f9]/25 bg-white px-4 py-2 font-semibold text-[#0a1633] no-underline shadow-sm transition hover:bg-[#eaf3ff]">Back to Dashboard</a>
+    </div>
 </x-layouts.app>

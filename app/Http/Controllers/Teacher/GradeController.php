@@ -51,6 +51,18 @@ class GradeController extends Controller
         $grade = trim((string) $request->string('grade'));
         $remarks = trim((string) $request->string('remarks'));
 
+        $ownsSubject = DB::table('subjects')
+            ->where('id', $subjectId)
+            ->where('teacher_id', $teacherId)
+            ->where('student_id', $studentId)
+            ->exists();
+
+        if (! $ownsSubject) {
+            flash_notice('You can only submit grades for a subject assigned to this student under your advisory.', 'error');
+
+            return redirect()->route('teacher.submit-grades');
+        }
+
         if ($grade === '') {
             $grade = 'N/A';
         } else {
@@ -58,7 +70,7 @@ class GradeController extends Controller
             $grade = $numeric > 100 ? 100 : ($numeric < 0 ? 0 : $grade);
         }
 
-        $quarter = 'Sem ' . (int) (Setting::find(1)->current_semester ?? 1);
+        $quarter = 'Term ' . (int) (Setting::find(1)->current_term ?? 1);
 
         Grade::updateOrCreate(
             ['student_id' => $studentId, 'subject_id' => $subjectId, 'quarter' => $quarter],
@@ -81,10 +93,20 @@ class GradeController extends Controller
     public function getSubjects(Request $request): JsonResponse
     {
         $studentId = (int) $request->integer('student_id');
-        $teacherId = (int) $request->integer('teacher_id');
+        $teacherId = $this->teacherId();
 
         if ($studentId <= 0 || $teacherId <= 0) {
             return response()->json(['error' => 'Missing student_id or teacher_id'], 400);
+        }
+
+        $ownsStudent = DB::table('enrollment_requests')
+            ->where('student_id', $studentId)
+            ->where('teacher_id', $teacherId)
+            ->where('status', 'approved')
+            ->exists();
+
+        if (! $ownsStudent) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $subjects = DB::table('subjects as s')
@@ -94,6 +116,7 @@ class GradeController extends Controller
                 [$studentId]
             )
             ->where('s.teacher_id', $teacherId)
+            ->where('s.student_id', $studentId)
             ->orderBy('s.subject_name')
             ->get()
             ->map(function ($row) {

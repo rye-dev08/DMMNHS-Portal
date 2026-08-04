@@ -48,8 +48,11 @@ class SubjectController extends Controller
 
         $duplicate = TeacherSubject::where('teacher_id', $teacherId)
             ->where(function ($query) use ($subjectName, $courseCode) {
-                $query->where('subject_name', $subjectName)
-                    ->orWhere('course_code', $courseCode);
+                $query->where('subject_name', $subjectName);
+
+                if ($courseCode !== '') {
+                    $query->orWhere('course_code', $courseCode);
+                }
             })
             ->exists();
 
@@ -114,7 +117,7 @@ class SubjectController extends Controller
         $hasGrades = DB::table('grades as g')
             ->join('subjects as s', 'g.subject_id', '=', 's.id')
             ->where('s.teacher_id', $teacherId)
-            ->where('s.id', $subject->id)
+            ->where('s.subject_name', $subject->subject_name)
             ->exists();
 
         if ($hasGrades) {

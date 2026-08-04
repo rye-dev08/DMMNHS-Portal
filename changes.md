@@ -325,3 +325,105 @@ To complete the migration of the full student portal into Laravel.
 
 ---
 
+## DMMNHS-V.2.1: Self-Service Info Editing (Student & Teacher)
+
+**Date:** 2026-08-04
+
+### Changes
+- Students can now edit their own info, and teachers their own info, via the "My Info" section (no admin intervention required).
+
+### Verification
+- Smoke-tested student/teacher info editing via `php artisan serve` → 200.
+
+### Notes
+- No Git operations were performed.
+
+---
+
+## DMMNHS-V.2.2: Fix Grade/Subject Duplication (Per-Student Subjects)
+
+### Changes
+- Subjects are now created per-student to avoid duplicate grade entries; the subject duplicate check skips empty `course_code` values.
+
+### Notes
+- No Git operations were performed.
+
+---
+
+## DMMNHS-V.2.4: Audit Security & Correctness Fixes
+
+**Date:** 2026-08-04
+
+### Files Changed
+- `app/Http/Controllers/Student/GradeController.php` — added teacher-ownership checks on grade operations; `getSubjects` returns 403 for non-owners.
+- `app/Http/Controllers/Admin/EnrollmentSettingController.php` — `endSchoolYear()` now writes `graduated_students`.
+- `app/Providers/AppServiceProvider.php` — named rate limiters `login` (5/min) and `contact` (3/min); wired via `throttle:` middleware on POST `/login` and `/contact`.
+- `routes/web.php` — `/teacher/subjects` moved inside the `role:teacher` group.
+- Subject duplicate check skips empty `course_code`; subject-delete grade-block keyed by `subject_name`; teacher dashboard null-guards; Grades overview term filter.
+
+### Notes
+- No Git operations were performed.
+
+---
+
+## DMMNHS-V.2.5: Teachers Auto-Approved on Creation (Remove Approve Step)
+
+**Date:** 2026-08-04
+
+### Files Changed
+- `app/Http/Controllers/Admin/AccountController.php` — creating a teacher now sets `active` = 1 and writes an approved `teacher_approval` row.
+- Removed `TeacherApprovalController`, `ApproveTeacherRequest`, `approve_teachers.blade.php`, the `admin/approve-teachers` routes, sidebar/dashboard approve links, and the `pendingTeachers` stat; cleaned `about.blade.php` references.
+- `app/Http/Requests/CreateUserRequest.php` — teacher fields (`advisory_class`, `max_students`, `max_subjects`).
+- `resources/views/admin/create_account.blade.php` — added Teacher Profile section.
+
+### Changes
+- Teacher accounts are auto-approved on creation — no separate Approve Teachers step. Approved status and advisory capacity come from the Create Account "Teacher Profile" form (blank → settings defaults). `TeacherApproval` model + `teacher_approval` table remain.
+
+### Notes
+- No Git operations were performed.
+
+---
+
+## DMMNHS-V.2.5.1: Fix Student Grades History (Archived Remarks)
+
+**Date:** 2026-08-04
+
+### Files Changed
+- `database/migrations/2026_08_04_000004_add_remarks_to_previous_term_grades_table.php` (new) — adds nullable `remarks` to `previous_term_grades`.
+- `app/Http/Controllers/Admin/EnrollmentSettingController.php` — `archiveGrades()` now copies `remarks` from `grades` into the archive.
+- `app/Models/PreviousTermGrade.php` — added `remarks` to `fillable`.
+
+### Changes
+- The student grades page crashed with `Unknown column 'g.remarks'` on an archived term. The archive now has `remarks` and future archiving preserves it.
+
+### Verification
+- `php artisan migrate --force` succeeded; history query for demo student returns 5 rows with remarks; 55 archived rows backfilled (19 Outstanding, 32 Satisfactory, 4 Fairly Satisfactory) using the `DemoSeeder` deterministic remarks.
+
+### Notes
+- No Git operations were performed.
+
+---
+
+## DMMNHS-V.2.5.2: Collapsible Desktop Sidebar
+
+**Date:** 2026-08-04
+
+### Files Changed
+- `resources/css/app.css` — added a `lg+` media-query block: when `body` carries `.sidebar-collapsed` the fixed sidebar translates off-canvas (`translate: -100% 0`) and the content shell loses its 264px left padding.
+- `resources/views/components/layouts/app.blade.php` — gave the content wrapper the id `app-shell` and a `transition-[padding]` (300ms) so collapse/expand animates.
+- `resources/views/components/layouts/header.blade.php` — added a desktop-only collapse toggle button (id `sidebar-collapse-toggle`, `hidden lg:inline-flex`).
+- `resources/js/app.js` — added `initSidebarCollapse()`: toggles the `sidebar-collapsed` body class on click, persists to `localStorage` (`sidebar-collapsed` = `1`), and restores it on load.
+
+### Changes
+- The fixed 264px desktop sidebar can now be hidden via a header toggle so pages use the full available width. The state persists across reloads. Mobile drawer behavior is unchanged.
+
+### Verification
+- `npm run build` compiled cleanly; built CSS contains the `sidebar-collapsed` hide rules.
+- `php artisan view:cache` compiled all Blade templates with no syntax errors.
+- `php -l` clean (no PHP files changed).
+
+### Notes
+- Used a persisted body class + plain CSS (the `translate` property, matching Tailwind v4) instead of relying on utility-class ordering. No new packages. No Git operations were performed.
+
+---
+

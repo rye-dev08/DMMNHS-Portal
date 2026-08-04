@@ -13,7 +13,7 @@ class DashboardController extends Controller
         $teacher = Teacher::where('user_id', auth()->id())->first();
         $teacherProfileId = (int) ($teacher->id ?? 0);
 
-        $advisory = $teacher->advisory_class ?? '';
+        $advisory = $teacher ? ($teacher->advisory_class ?? '') : '';
         $subjectsCount = \DB::table('subjects')->where('teacher_id', $teacherProfileId)->count();
         $approvedCount = \DB::table('enrollment_requests')
             ->where('teacher_id', $teacherProfileId)

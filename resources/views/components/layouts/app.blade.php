@@ -12,7 +12,7 @@
 <body class="min-h-screen bg-[#f5f7fb] text-slate-900">
     <x-layouts.sidebar />
 
-    <div class="flex min-h-screen flex-col lg:pl-[264px]">
+    <div id="app-shell" class="flex min-h-screen flex-col transition-[padding] duration-300 lg:pl-[264px]">
         <x-layouts.header />
 
         <main id="page-main" class="relative mx-auto my-6 flex-1 w-[min(96%,1080px)]">

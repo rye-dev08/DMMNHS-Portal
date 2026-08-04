@@ -80,6 +80,21 @@
             <input type="number" name="grade_level" placeholder="Grade Level" value="{{ old('grade_level') }}" class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
         </div>
 
+        {{-- Section: Teacher profile --}}
+        <div class="mb-3 mt-6 flex items-center gap-2">
+            <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-[#0018f9] to-[#0080fc] text-[13px] font-bold text-white">4</span>
+            <h3 class="m-0 text-[15px] font-semibold text-[#0a1633]">Teacher Profile <span class="text-[12.5px] font-normal text-[#0a1633]/50">(only for teachers, approved on creation)</span></h3>
+        </div>
+        <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+            <input type="text" name="advisory_class" placeholder="Advisory Class (e.g. 7-A)" value="{{ old('advisory_class') }}"
+                   class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
+            <input type="number" name="max_students" placeholder="Max Students" min="1" value="{{ old('max_students') }}"
+                   class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
+            <input type="number" name="max_subjects" placeholder="Max Subjects Per Student" min="1" value="{{ old('max_subjects') }}"
+                   class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
+        </div>
+        <p class="mt-1.5 text-[12.5px] text-[#0a1633]/55">Leave blank to use the default limits from enrollment settings. The teacher account is activated and approved immediately.</p>
+
         <button type="submit" class="mt-6 rounded-lg bg-gradient-to-r from-[#10b981] to-[#059669] px-7 py-2.5 font-semibold text-white shadow-[0_4px_14px_-4px_rgba(16,185,129,0.7)] transition hover:brightness-110">
             Create Account
         </button>

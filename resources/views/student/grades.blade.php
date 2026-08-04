@@ -8,9 +8,31 @@
            class="rounded-lg bg-gradient-to-r from-[#0a1633] to-[#164aa8] px-4 py-2 font-semibold text-white no-underline shadow-[0_4px_14px_-4px_rgba(10,22,51,0.6)] transition hover:brightness-110">Dashboard</a>
     </div>
 
-    <p class="mb-4 text-[13px] text-[#0a1633]/60">
-        Semester <strong>{{ $currentSem }}</strong> &middot; subjects and grades shown for active/current semester only.
-    </p>
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <p class="m-0 text-[13px] text-[#0a1633]/60">
+            @if ($viewingHistory)
+                Viewing archived grades from <strong>{{ $schoolYear }} &middot; Term {{ $currentTerm }}</strong>.
+            @else
+                Term <strong>{{ $currentTerm }}</strong> &middot; subjects and grades shown for the active/current term only.
+            @endif
+        </p>
+
+        @if ($archivedPeriods->isNotEmpty())
+            <form method="GET" action="{{ route('student.grades') }}" class="flex items-center gap-2">
+                <select name="term" id="archive-term"
+                        class="rounded-lg border border-[#0018f9]/20 bg-white px-3 py-1.5 text-[13px] text-[#0a1633] focus:outline-none focus:ring-2 focus:ring-[#0018f9]/40">
+                    <option value="" {{ ! $viewingHistory ? 'selected' : '' }}>Current term</option>
+                    @foreach ($archivedPeriods as $ap)
+                        <option value="{{ $ap->t }}" {{ $viewingHistory && (int) $selectedTerm === (int) $ap->t && $selectedYear === $ap->y ? 'selected' : '' }}
+                                data-year="{{ $ap->y }}">
+                            {{ $ap->y }} &middot; Term {{ $ap->t }}
+                        </option>
+                    @endforeach
+                </select>
+                <input type="hidden" name="year" id="archive-year" value="{{ $viewingHistory ? $selectedYear : '' }}">
+            </form>
+        @endif
+    </div>
 
     <div class="overflow-hidden rounded-xl border border-[#0018f9]/15 shadow-[0_6px_20px_-8px_rgba(0,24,249,0.15)]">
         <table class="w-full border-collapse text-[14px]">
@@ -35,8 +57,13 @@
                 @empty
                     <tr>
                         <td colspan="3" class="p-10 text-center text-[#6b7280]">
-                            No subjects or grades for Semester {{ $currentSem }} yet.<br>
-                            <small>Ask your teacher/adviser to assign subjects first.</small>
+                            @if ($viewingHistory)
+                                No archived grades for {{ $schoolYear }} &middot; Term {{ $currentTerm }}.<br>
+                                <small>This term has no recorded grades yet.</small>
+                            @else
+                                No subjects or grades for Term {{ $currentTerm }} yet.<br>
+                                <small>Ask your teacher/adviser to assign subjects first.</small>
+                            @endif
                         </td>
                     </tr>
                 @endforelse
@@ -55,4 +82,17 @@
             @endif
         </p>
     </div>
+
+    <script>
+        (function () {
+            var yearInput = document.getElementById('archive-year');
+            var select = document.getElementById('archive-term');
+            if (!yearInput || !select) return;
+            select.addEventListener('change', function () {
+                var opt = select.options[select.selectedIndex];
+                yearInput.value = opt.getAttribute('data-year') || '';
+                select.form.submit();
+            });
+        })();
+    </script>
 </x-layouts.app>

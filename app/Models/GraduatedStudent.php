@@ -12,6 +12,6 @@ class GraduatedStudent extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'user_id', 'graduation_grade', 'graduation_semester', 'graduation_school_year', 'graduation_date',
+        'user_id', 'graduation_grade', 'graduation_term', 'graduation_school_year', 'graduation_date',
     ];
 }

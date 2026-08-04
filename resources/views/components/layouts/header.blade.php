@@ -6,6 +6,7 @@
         'student' => route('student.dashboard'),
         default => route('login'),
     };
+    $period = auth()->check() ? \App\Models\Setting::find(1)?->period() : null;
 @endphp
 
 <header class="sticky top-0 z-20 flex items-center gap-3 border-b border-white/10 bg-[linear-gradient(120deg,#0a1633,#0d2450,#164aa8)] px-4 py-3 text-white shadow-[0_4px_18px_rgba(2,6,23,0.25)] lg:px-6">
@@ -24,6 +25,15 @@
     </div>
 
     <div class="ml-auto flex items-center gap-2.5">
+        @if ($period)
+            <span class="hidden rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[12px] font-medium text-white/80 md:inline-flex"
+                  title="Current academic period">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="mr-1.5 h-3.5 w-3.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                </svg>
+                {{ $period->label }}
+            </span>
+        @endif
         <span class="hidden rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[12px] font-medium capitalize text-white/80 md:inline-flex">
             {{ $role }} account
         </span>
