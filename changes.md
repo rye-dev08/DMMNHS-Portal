@@ -427,3 +427,56 @@ To complete the migration of the full student portal into Laravel.
 
 ---
 
+## DMMNHS-V2.5.4: Split Teacher Advisory — List & Assign Pages
+
+**Date:** 2026-08-04
+
+### Files Changed
+- `routes/web.php` — Added `GET/POST /admin/assign-class` routes.
+- `app/Http/Controllers/Admin/EnrollmentSettingController.php` — Rewrote `advisory()` to parse grade level/section from `advisory_class` and filter by JHS/SHS; added `assignClass()` (form) and `storeAdvisory()` (save with grade dropdown 7–12 + section name).
+- `resources/views/admin/teacher_advisory.blade.php` — Rewritten as read-only list with All/JHS/SHS filter dropdown and per-teacher Assign links.
+- `resources/views/admin/assign_class.blade.php` (new) — Assign page with teacher dropdown, grade-level dropdown (7–12), section name input, and live preview of existing advisory class.
+- `resources/views/components/layouts/sidebar.blade.php` — Added "Assign Class" icon.
+
+### Changes
+- **Two separate pages** replace the single inline-edit advisory table:
+  - **Advisory List** (`admin.teacher-advisory`): table of teachers showing Level (JHS/SHS badge), Section, and Advisory Class. Filter dropdown switches between All / Junior High (7–10) / Senior High (11–12). Each row has an "Assign" link → assign page pre-selecting that teacher.
+  - **Assign Class** (`admin.assign-class`): teacher selector dropdown, grade-level dropdown (7–10 = JHS, 11–12 = SHS), section name input. Saves `advisory_class` as `"Grade {level}-{section}"` (e.g. `"Grade 11-A"`).
+- `advisory_class` format unchanged (`"Grade 11-A"`), just parsed/constructed from structured inputs.
+- Old `saveAdvisory()` route kept for backward compatibility; new flow uses `storeAdvisory()`.
+
+### Verification
+- `php -l` clean on controller.
+- `npx vite build` succeeded.
+- `php artisan route:cache` succeeded.
+- `php artisan view:cache` succeeded.
+
+### Notes
+- No Git operations were performed.
+
+---
+
+## DMMNHS-V.2.5.3: Term Reset Behavior Refactor
+
+**Date:** 2026-08-04
+
+### Files Changed
+- `app/Http/Controllers/Admin/EnrollmentSettingController.php` — `endTerm()` no longer deletes `enrollment_requests` or marks `needs_reenrollment = 'yes'`; no longer resets `advisory_class`.
+- `resources/views/admin/enrollment_settings.blade.php` — Updated "New Term" button description, confirm message, and info banner text.
+
+### Changes
+- **Enrollment is now annual, not per-term.** Previously, `endTerm()` (Semester 1→2, 2→3) deleted all `enrollment_requests`, graded data cleared subjects/grades/teacher_subjects, and marked all students as needing re-enrollment — forcing the full enrollment cycle every term.
+- Now, `endTerm()` archives subjects & grades to history and clears only term-specific schedule data (`subjects`, `teacher_subjects`, live `grades`). `enrollment_requests` are **preserved** so already-approved students keep their enrollment status. Teachers re-input subjects in the Advisory Portal; the existing `SubjectController::store()` auto-applies new `teacher_subjects` rows to all approved students — students automatically "receive" their new schedule without re-enrolling.
+- `advisory_class` and `needs_reenrollment` are no longer reset on term change — they persist until the school year resets (End School Year).
+- **School year flow unchanged:** End School Year (Term 3) still archives, promotes students, opens enrollment phase → students enroll → teachers approve → End Enrollment Phase closes it → New School Year resets to Term 1.
+
+### Verification
+- `php -l` clean on controller.
+- `npx vite build` succeeded.
+- `php artisan view:cache` succeeded.
+
+### Notes
+- No Git operations were performed.
+
+---
+

@@ -35,6 +35,7 @@
             ['label' => 'Create Account', 'route' => 'admin.accounts.create', 'icon' => 'plus'],
             ['label' => 'Enrollment Settings', 'route' => 'admin.enrollment-settings', 'icon' => 'sliders'],
             ['label' => 'Teacher Advisory', 'route' => 'admin.teacher-advisory', 'icon' => 'book'],
+            ['label' => 'Assign Class', 'route' => 'admin.assign-class', 'icon' => 'plus'],
         ],
         'teacher' => [
             ['label' => 'Dashboard', 'route' => 'teacher.dashboard', 'icon' => 'grid'],

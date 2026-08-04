@@ -46,10 +46,10 @@
             $actions = [
                 [
                     'label' => 'New Term',
-                    'desc' => 'Archives current subjects & grades to history, resets enrollments.',
+                    'desc' => 'Archives subjects & grades to history, clears schedule for new term.',
                     'route' => 'admin.enrollment-settings.end-term',
                     'allowed' => $period->can_new_term,
-                    'confirm' => 'Start a new term? This archives current subjects and grades to history, then resets enrollments for the next term.',
+                    'confirm' => 'Start a new term? This archives current subjects and grades to history, then clears the class schedule for the new term. Teachers will re-input subjects in the Advisory Portal.',
                     'gradient' => 'from-[#ff9800] to-[#f57c00]',
                     'shadow' => 'rgba(255,152,0,0.9)',
                     'disabled_note' => 'Only during Term 1 or 2',
@@ -135,7 +135,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
         </svg>
         <p class="m-0">
-            <strong>New Term</strong> (Term 1&rarr;2, 2&rarr;3) archives subjects &amp; grades to history and resets enrollments.
+            <strong>New Term</strong> (Term 1&rarr;2, 2&rarr;3) archives subjects &amp; grades to history and clears the class schedule. Teachers re-input subjects in the Advisory Portal; already-approved students receive the new subjects automatically.
             <strong>End School Year</strong> (Term 3 only) archives the year, promotes students, and opens the enrollment phase.
             During the <strong>enrollment phase</strong> students enroll for the next school year; <strong>End Enrollment Phase</strong> closes it.
             <strong>New School Year</strong> advances the year and resets to Term 1.

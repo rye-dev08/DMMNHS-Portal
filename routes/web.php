@@ -61,6 +61,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/enrollment-settings/end-enrollment-phase', [EnrollmentSettingController::class, 'endEnrollmentPhase'])->name('enrollment-settings.end-enrollment-phase');
         Route::post('/enrollment-settings/new-school-year', [EnrollmentSettingController::class, 'newSchoolYear'])->name('enrollment-settings.new-school-year');
         Route::get('/teacher-advisory', [EnrollmentSettingController::class, 'advisory'])->name('teacher-advisory');
+        Route::get('/assign-class', [EnrollmentSettingController::class, 'assignClass'])->name('assign-class');
+        Route::post('/assign-class', [EnrollmentSettingController::class, 'storeAdvisory'])->name('assign-class.store');
     });
 
     Route::prefix('teacher')->name('teacher.')->middleware('role:teacher')->group(function () {

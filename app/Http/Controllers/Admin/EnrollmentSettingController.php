@@ -22,7 +22,69 @@ class EnrollmentSettingController extends Controller
 
     public function advisory(): View
     {
+        $filter = request('filter', 'all');
+
         $teachers = DB::table('users as u')
+            ->join('teachers as t', 't.user_id', '=', 'u.id')
+            ->where('u.role', 'teacher')
+            ->where('u.status', 'active')
+            ->where('t.status', 'active')
+            ->select('u.id as user_id', 'u.name', 't.advisory_class')
+            ->orderBy('u.name')
+            ->get()
+            ->map(function ($item) {
+                $gradeLevel = null;
+                $sectionName = null;
+                if ($item->advisory_class && preg_match('/Grade\s*(\d+)\s*[-.]?\s*(.+)/i', $item->advisory_class, $m)) {
+                    $gradeLevel = (int) $m[1];
+                    $sectionName = trim($m[2]);
+                }
+                $item->grade_level = $gradeLevel;
+                $item->section_name = $sectionName;
+                $item->level = $gradeLevel !== null
+                    ? ($gradeLevel <= 10 ? 'JHS' : 'SHS')
+                    : 'Unassigned';
+                return $item;
+            });
+
+        if ($filter === 'jhs') {
+            $teachers = $teachers->filter(fn($t) => $t->level === 'JHS');
+        } elseif ($filter === 'shs') {
+            $teachers = $teachers->filter(fn($t) => $t->level === 'SHS');
+        }
+
+        return view('admin.teacher_advisory', [
+            'teachers' => $teachers,
+            'filter' => $filter,
+        ]);
+    }
+
+    public function assignClass(): View
+    {
+        $teacherId = request('teacher_id');
+        $selectedTeacher = null;
+
+        if ($teacherId) {
+            $selectedTeacher = DB::table('users as u')
+                ->join('teachers as t', 't.user_id', '=', 'u.id')
+                ->where('u.role', 'teacher')
+                ->where('u.status', 'active')
+                ->where('t.status', 'active')
+                ->where('u.id', $teacherId)
+                ->select('u.id as user_id', 'u.name', 't.advisory_class')
+                ->first();
+
+            if ($selectedTeacher && $selectedTeacher->advisory_class) {
+                preg_match('/Grade\s*(\d+)\s*[-.]?\s*(.+)/i', $selectedTeacher->advisory_class, $m);
+                $selectedTeacher->grade_level = (int) ($m[1] ?? 0);
+                $selectedTeacher->section_name = trim($m[2] ?? '');
+            } else {
+                $selectedTeacher->grade_level = 7;
+                $selectedTeacher->section_name = '';
+            }
+        }
+
+        $allTeachers = DB::table('users as u')
             ->join('teachers as t', 't.user_id', '=', 'u.id')
             ->where('u.role', 'teacher')
             ->where('u.status', 'active')
@@ -31,9 +93,43 @@ class EnrollmentSettingController extends Controller
             ->orderBy('u.name')
             ->get();
 
-        return view('admin.teacher_advisory', [
-            'teachers' => $teachers,
+        return view('admin.assign_class', [
+            'allTeachers' => $allTeachers,
+            'selectedTeacher' => $selectedTeacher,
         ]);
+    }
+
+    public function storeAdvisory(Request $request): RedirectResponse
+    {
+        $teacherUserId = (int) $request->integer('teacher_user_id');
+        $gradeLevel = (int) $request->integer('grade_level');
+        $sectionName = trim((string) $request->string('section_name'));
+
+        if ($teacherUserId <= 0) {
+            flash_notice('Invalid teacher selected.', 'error');
+            return redirect()->route('admin.assign-class');
+        }
+
+        if ($gradeLevel < 7 || $gradeLevel > 12) {
+            flash_notice('Grade level must be between 7 and 12.', 'error');
+            return redirect()->route('admin.assign-class');
+        }
+
+        if ($sectionName === '') {
+            flash_notice('Section name is required.', 'error');
+            return redirect()->route('admin.assign-class');
+        }
+
+        $advisoryClass = 'Grade ' . $gradeLevel . '-' . $sectionName;
+
+        DB::table('teachers')
+            ->where('user_id', $teacherUserId)
+            ->update(['advisory_class' => $advisoryClass]);
+
+        $level = $gradeLevel <= 10 ? 'JHS' : 'SHS';
+        flash_notice("Assigned advisory class: {$advisoryClass} ({$level})", 'success');
+
+        return redirect()->route('admin.teacher-advisory');
     }
 
     public function saveAdvisory(Request $request): RedirectResponse
@@ -71,19 +167,19 @@ class EnrollmentSettingController extends Controller
             $this->archiveSubjects($currTerm, $currYear);
             $this->archiveGrades($currTerm, $currYear);
 
-            DB::table('enrollment_requests')->delete();
+            // Clear term-specific data: subjects (student schedule) and teacher_subjects.
+            // enrollment_requests are preserved so students don't need to re-enroll —
+            // teachers simply re-input subjects in the Advisory Portal and they
+            // auto-apply to already-approved students.
             DB::table('grades')->delete();
             DB::table('subjects')->delete();
             DB::table('teacher_subjects')->delete();
-
-            DB::table('teachers')->update(['advisory_class' => null]);
-            DB::table('students')->where('status', 'active')->update(['needs_reenrollment' => 'yes']);
 
             Setting::where('id', 1)->update(['current_term' => $currTerm + 1]);
         });
 
         $nextTerm = $currTerm + 1;
-        flash_notice("Term {$currTerm} archived to history. New Term {$nextTerm} - System fully reset!", 'success');
+        flash_notice("Term {$currTerm} archived to history. New Term {$nextTerm} started — subjects cleared, teachers re-input via Advisory Portal.", 'success');
 
         return redirect()->route('admin.enrollment-settings');
     }

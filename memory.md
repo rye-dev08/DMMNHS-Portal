@@ -136,10 +136,11 @@ Connection: **InfinityFree** shared MySQL host (see `includes/config.php`). Sche
 **Admin**
 - Dashboard (placeholder welcome).
 - **Manage Accounts** (`accounts.php`): create users (teacher/student) with password validation; creates `students`/`teachers` profile rows; delete user with cascade cleanup across grades, subjects, enrollment_requests, assessment_scores, teacher_approval; lists users grouped by role (admins, students w/ year+section, teachers w/ advisory).
-- **Approve Teachers** (`approve_teachers.php`): approve inactive teachers, set `max_students`, `max_subjects`, `advisory_class`; syncs `teachers` + `teacher_approval`; activates `users.status`.
+ - **Advisory List** (`teacher-advisory.php`): list of teachers with assigned advisory classes; filterable by JHS (grades 7-10) / SHS (grades 11-12).
+ - **Assign Class** (`assign-class.php`): grade-level dropdown (7-12, with JHS/SHS labeling) + section name input; saves `advisory_class` as `"Grade {level}-{section}"`.
 - **Enrollment Settings** (`enrollment_settings.php`):
   - `save_advisory` — set a teacher's advisory class.
-  - `end_semester` — archives subjects/grades to `previous_semester_*`, clears enrollment_requests/grades/subjects/teacher_subjects, resets teachers' advisory, marks students `needs_reenrollment='yes'`, increments semester.
+   - `end_term` — archives subjects/grades to `previous_term_*`, clears only `subjects`/`teacher_subjects`/live `grades` for the new term; **preserves** `enrollment_requests` so approved students keep their enrollment status; **does not** mark `needs_reenrollment='yes'` or reset `advisory_class`. Teachers re-input subjects in the Advisory Portal; approved students auto-receive new subjects. Enrollment re-submission only happens after school year end.
   - `end_school_year` — archives, increments grade levels (deletes students reaching grade ≥ 14), resets to semester 1 and next school year.
 - **Change Password** — verify old, validate new, update hash.
 
