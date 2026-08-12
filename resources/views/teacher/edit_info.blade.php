@@ -19,7 +19,7 @@
     @endif
 
     <form method="POST" action="{{ route('teacher.info.update') }}" data-validate
-          class="relative mx-auto max-w-[520px] overflow-hidden rounded-2xl border border-[#0018f9]/15 bg-white/85 p-5 shadow-[0_8px_24px_-10px_rgba(0,24,249,0.18)] sm:p-6">
+          class="relative mx-auto max-w-[560px] overflow-hidden rounded-2xl border border-[#0018f9]/15 bg-white/85 p-5 shadow-[0_8px_24px_-10px_rgba(0,24,249,0.18)] sm:p-6">
         @csrf
         @method('PUT')
 

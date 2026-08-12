@@ -18,7 +18,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('admin.accounts.store') }}" class="max-w-[900px] rounded-2xl border border-[#0018f9]/15 bg-white/80 p-5 shadow-[0_8px_24px_-10px_rgba(0,24,249,0.18)] sm:p-6">
+    <form method="POST" action="{{ route('admin.accounts.store') }}" data-validate class="mx-auto max-w-[900px] rounded-2xl border border-[#0018f9]/15 bg-white/80 p-5 shadow-[0_8px_24px_-10px_rgba(0,24,249,0.18)] sm:p-6">
         @csrf
 
         {{-- Section: Credentials --}}
@@ -34,7 +34,7 @@
             <input type="email" name="email" placeholder="Email" required value="{{ old('email') }}"
                    class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9] focus:ring-2 focus:ring-[#0018f9]/15">
             <div class="relative">
-                <input type="password" id="password" name="password" placeholder="Password" required
+                <input type="password" id="password" name="password" placeholder="Password" required data-password-policy data-min="8"
                        class="w-full rounded-lg border border-[#0018f9]/20 bg-white p-2.5 pr-14 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9] focus:ring-2 focus:ring-[#0018f9]/15">
                 <label class="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-[13px] font-medium text-slate-500 select-none">
                     <input type="checkbox" id="show-create-pass" class="mr-1 accent-[#0018f9]"> Show
@@ -48,11 +48,12 @@
             <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-[#0018f9] to-[#0080fc] text-[13px] font-bold text-white">2</span>
             <h3 class="m-0 text-[15px] font-semibold text-[#0a1633]">Account Role</h3>
         </div>
-        <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
             @foreach ([
                 'student' => ['Student', 'Enrolled learners with class schedule & grades.'],
                 'teacher' => ['Teacher', 'Manages subjects, grades & enrollment.'],
-                'admin' => ['Admin', 'Full control over accounts & settings.'],
+                'office_admin' => ['Office Administrator', 'Academic calendar, announcements, IDs & requirements.'],
+                'system_admin' => ['System Administrator', 'Full control over accounts & settings.'],
             ] as $val => [$rlabel, $desc])
                 <label class="relative flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition {{ old('role', 'student') === $val ? 'border-[#0018f9]/60 bg-[#0018f9]/5 shadow-[0_0_0_1px_rgba(0,24,249,0.35)]' : 'border-slate-200 bg-white hover:border-[#0018f9]/30' }}">
                     <input type="radio" name="role" value="{{ $val }}" class="mt-1 accent-[#0018f9]" {{ old('role', 'student') === $val ? 'checked' : '' }}>
@@ -70,14 +71,22 @@
             <h3 class="m-0 text-[15px] font-semibold text-[#0a1633]">Student Profile <span class="text-[12.5px] font-normal text-[#0a1633]/50">(only for students)</span></h3>
         </div>
         <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-4">
-            <select name="sex" class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
+            <select name="sex" class="futuristic-select px-2.5 py-1.5 text-[14px]">
                 <option value="">Sex</option>
                 <option value="M" {{ old('sex') === 'M' ? 'selected' : '' }}>Male</option>
                 <option value="F" {{ old('sex') === 'F' ? 'selected' : '' }}>Female</option>
             </select>
             <input type="date" name="birthday" value="{{ old('birthday') }}" class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
             <input type="number" name="age" placeholder="Age" value="{{ old('age') }}" class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
-            <input type="number" name="grade_level" placeholder="Grade Level" value="{{ old('grade_level') }}" class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
+            <select name="grade_level" class="futuristic-select px-2.5 py-1.5 text-[14px]">
+                <option value="">Grade Level</option>
+                <option value="7" {{ old('grade_level') === '7' ? 'selected' : '' }}>Grade 7</option>
+                <option value="8" {{ old('grade_level') === '8' ? 'selected' : '' }}>Grade 8</option>
+                <option value="9" {{ old('grade_level') === '9' ? 'selected' : '' }}>Grade 9</option>
+                <option value="10" {{ old('grade_level') === '10' ? 'selected' : '' }}>Grade 10</option>
+                <option value="11" {{ old('grade_level') === '11' ? 'selected' : '' }}>Grade 11</option>
+                <option value="12" {{ old('grade_level') === '12' ? 'selected' : '' }}>Grade 12</option>
+            </select>
         </div>
 
         {{-- Section: Teacher profile --}}
@@ -86,7 +95,7 @@
             <h3 class="m-0 text-[15px] font-semibold text-[#0a1633]">Teacher Profile <span class="text-[12.5px] font-normal text-[#0a1633]/50">(only for teachers, approved on creation)</span></h3>
         </div>
         <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-            <input type="text" name="advisory_class" placeholder="Advisory Class (e.g. 7-A)" value="{{ old('advisory_class') }}"
+            <input type="text" name="advisory_class" placeholder="Advisory Class (e.g. 11-A)" value="{{ old('advisory_class') }}"
                    class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
             <input type="number" name="max_students" placeholder="Max Students" min="1" value="{{ old('max_students') }}"
                    class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">

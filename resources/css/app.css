@@ -11,14 +11,23 @@
 /* ============================================================
    Collapsible sidebar (desktop)
    ============================================================ */
+
+/* Base sidebar width & transition */
+#app-sidebar {
+    width: 264px;
+    transition-property: width, transform;
+    transition-duration: 300ms;
+}
+
 @media (min-width: 1024px) {
-    body.sidebar-collapsed #app-sidebar {
-        width: 64px;
+    #app-shell {
+        padding-left: 264px;
+        transition-property: padding-left;
+        transition-duration: 300ms;
     }
 
-    #app-sidebar {
-        transition-property: width;
-        transition-duration: 300ms;
+    body.sidebar-collapsed #app-sidebar {
+        width: 64px;
     }
 
     body.sidebar-collapsed #app-shell {
@@ -397,6 +406,53 @@
 }
 
 /* ============================================================
+   Futuristic scrollbar (Webkit + Firefox)
+   ============================================================ */
+
+* {
+    scrollbar-color: rgba(0, 24, 249, 0.35) transparent;
+    scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(0, 24, 249, 0.45), rgba(56, 189, 248, 0.35));
+    border-radius: 10px;
+    border: 1px solid rgba(0, 24, 249, 0.15);
+    backdrop-filter: blur(4px);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(0, 24, 249, 0.65), rgba(56, 189, 248, 0.55));
+    border-color: rgba(0, 24, 249, 0.3);
+}
+
+*::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* ============================================================
+   Polling badge transitions (smooth, no flicker)
+   ============================================================ */
+
+#notif-badge,
+#announcement-unread-badge,
+#message-pending-badge,
+#poll-enrollment-count {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    will-change: opacity, transform;
+}
+
+/* ============================================================
    Custom inline field validation
    ============================================================ */
 .field-error {
@@ -432,4 +488,111 @@
     80% {
         transform: translateX(3px);
     }
+}
+
+/* ============================================================
+   Form controls — consistent outline, border, and dropdown text
+   ============================================================ */
+
+/* Base default for any unstyled field. Placed in @layer base so
+   Tailwind utility classes (e.g. colored borders) always win. */
+@layer base {
+    :where(input, select, textarea) {
+        border: 1px solid rgba(10, 22, 51, 0.32);
+        background-color: #ffffff;
+        color: #0a1633;
+        border-radius: 0.5rem;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    :where(input, select, textarea):focus {
+        border-color: #0018f9;
+        box-shadow: 0 0 0 3px rgba(0, 24, 249, 0.15);
+    }
+}
+
+/* Shared "futuristic" field look used across filters & forms. */
+.futuristic-select {
+    border: 1px solid rgba(10, 22, 51, 0.32);
+    background-color: #ffffff;
+    color: #0a1633;
+    border-radius: 0.5rem;
+    outline: none;
+    box-shadow: 0 1px 2px rgba(10, 22, 51, 0.05);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.futuristic-select:focus {
+    border-color: #0018f9;
+    box-shadow: 0 0 0 3px rgba(0, 24, 249, 0.15);
+}
+
+.futuristic-select::placeholder {
+    color: #94a3b8;
+}
+
+select.futuristic-select {
+    cursor: pointer;
+}
+
+/* Force dropdown options to always be readable (light bg + dark text). */
+.futuristic-select option {
+    background-color: #ffffff;
+    color: #0a1633;
+}
+
+/* Loading state applied to submit buttons while a form is being processed. */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.75;
+    cursor: progress;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1rem;
+    height: 1rem;
+    margin: -0.5rem 0 0 -0.5rem;
+    border-radius: 9999px;
+    border: 2px solid rgba(255, 255, 255, 0.45);
+    border-top-color: #ffffff;
+    animation: btn-loading-spin 0.7s linear infinite;
+}
+
+.btn-loading > * {
+    visibility: hidden;
+}
+
+@keyframes btn-loading-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================================
+   Smooth page transitions (full page loads between routes)
+   ============================================================ */
+@keyframes page-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.page-fade-in {
+    animation: page-fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.page-fade-out {
+    opacity: 0 !important;
+    transition: opacity 0.14s ease;
 }

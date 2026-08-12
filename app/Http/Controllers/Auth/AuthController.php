@@ -21,12 +21,13 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
+            'remember' => ['boolean'],
         ]);
 
         $user = User::where('username', $credentials['username'])->first();
 
         if (! $user) {
-            flash_notice('User not found', 'error');
+            flash_notice('Invalid login credentials.', 'error');
 
             return redirect()->route('login')->withInput(['username' => $credentials['username']]);
         }
@@ -42,25 +43,39 @@ class AuthController extends Controller
                 $verified = password_verify($credentials['password'], $hash);
 
                 if ($verified && password_needs_rehash($hash, PASSWORD_DEFAULT)) {
-                    $user->password_hash = password_hash($credentials['password'], PASSWORD_DEFAULT);
-                    $user->save();
+                    try {
+                        $user->password_hash = password_hash($credentials['password'], PASSWORD_DEFAULT);
+                        $user->save();
+                    } catch (\Throwable $e) {
+                        report($e);
+                    }
                 }
             } elseif (hash_equals($hash, $credentials['password'])) {
                 // Legacy plaintext fallback: verify and auto-upgrade.
                 $verified = true;
-                $user->password_hash = password_hash($credentials['password'], PASSWORD_DEFAULT);
-                $user->save();
+                try {
+                    $user->password_hash = password_hash($credentials['password'], PASSWORD_DEFAULT);
+                    $user->save();
+                } catch (\Throwable $e) {
+                    report($e);
+                }
             }
         }
 
-        if ($verified && $user->status === 'active') {
-            Auth::login($user, false);
+        if ($verified) {
+            if ($user->status !== 'active') {
+                flash_notice('Your account is inactive. Please contact the administrator.', 'error');
+
+                return redirect()->route('login')->withInput(['username' => $credentials['username']]);
+            }
+
+            Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();
 
             return redirect()->route($this->dashboardRoute($user->role));
         }
 
-        flash_notice('Incorrect password', 'error');
+        flash_notice('Invalid login credentials.', 'error');
 
         return redirect()->route('login')->withInput(['username' => $credentials['username']]);
     }
@@ -71,13 +86,16 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        flash_notice('You have been logged out successfully.', 'info');
+
         return redirect()->route('login');
     }
 
     private function dashboardRoute(string $role): string
     {
         return match ($role) {
-            'admin' => 'admin.dashboard',
+            'system_admin' => 'admin.dashboard',
+            'office_admin' => 'office.dashboard',
             'teacher' => 'teacher.dashboard',
             default => 'student.dashboard',
         };

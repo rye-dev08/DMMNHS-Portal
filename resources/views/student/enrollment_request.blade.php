@@ -19,37 +19,72 @@
                 You cannot enroll because you are either <strong>graduated</strong> or <strong>inactive</strong>.
             </p>
         </div>
+    @elseif ($enrollmentState === 'pending')
+        <div class="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-[14px] text-amber-800">
+            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m-3-3H9.5" />
+                </svg>
+            </span>
+            <p class="m-0">
+                <strong>Your enrollment is on process, please wait.</strong><br>
+                Your request is pending approval from your teacher.
+            </p>
+        </div>
+    @elseif ($enrollmentState === 'approved')
+        <div class="mb-6 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-[14px] text-emerald-800">
+            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15l3.75-2.25M9 6.75h6a2 2 0 012 2v1.25m-8.5 6.5h.007v.008H9v-.008Z" />
+                </svg>
+            </span>
+            <p class="m-0">
+                <strong>You're now enrolled.</strong><br>
+                Your enrollment has been approved. You can now access your schedule and subjects.
+            </p>
+        </div>
+    @else
+        <div class="mb-6 rounded-2xl border border-[#0018f9]/15 bg-white/80 p-5 shadow-[0_8px_24px_-10px_rgba(0,24,249,0.18)] sm:p-6">
+            @if ($enrollmentState === 'rejected')
+                <div class="mb-3 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-3 text-[13px] text-red-700">
+                    <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-red-100 text-red-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-3 w-3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </span>
+                    <p class="m-0">Your previous request was <strong>rejected</strong>. Please choose another teacher below.</p>
+                </div>
+            @endif
+            <form method="POST" action="{{ route('student.enrollment.store') }}" class="flex flex-wrap items-end gap-3">
+                @csrf
+                <div class="flex-1 min-w-[240px]">
+                    <label class="mb-1.5 block text-[13px] font-semibold text-[#0a1633]">Teacher</label>
+                    <select name="teacher_id" required {{ $isGraduateOrInactive ? 'disabled' : '' }}
+                            class="futuristic-select w-full px-3 py-2 text-[14px] disabled:opacity-50 disabled:cursor-not-allowed">
+                        <option value="">Select Teacher (Active)</option>
+                        @foreach ($teachers as $t)
+                            <option value="{{ $t->id }}">
+                                {{ $t->name }} {{ $t->advisory_class ? '(' . $t->advisory_class . ')' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit"
+                        class="rounded-lg px-5 py-2.5 font-semibold text-white transition {{ $isGraduateOrInactive ? 'cursor-not-allowed bg-slate-400' : 'bg-gradient-to-r from-[#0018f9] to-[#0080fe] shadow-[0_4px_14px_-4px_rgba(0,24,249,0.6)] hover:brightness-110' }}"
+                        {{ $isGraduateOrInactive ? 'disabled' : '' }}>
+                    {{ $isGraduateOrInactive ? "Can't Enroll" : "Send Enrollment Request" }}
+                </button>
+            </form>
+        </div>
     @endif
-
-    <div class="mb-6 rounded-2xl border border-[#0018f9]/15 bg-white/80 p-5 shadow-[0_8px_24px_-10px_rgba(0,24,249,0.18)] sm:p-6">
-        <form method="POST" action="{{ route('student.enrollment.store') }}" class="flex flex-wrap items-end gap-3">
-            @csrf
-            <div class="flex-1 min-w-[240px]">
-                <label class="mb-1.5 block text-[13px] font-semibold text-[#0a1633]">Teacher</label>
-                <select name="teacher_id" required {{ $isGraduateOrInactive ? 'disabled' : '' }}
-                        class="w-full rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9] focus:ring-2 focus:ring-[#0018f9]/15 disabled:bg-slate-50 disabled:text-slate-400">
-                    <option value="">Select Teacher (Active)</option>
-                    @foreach ($teachers as $t)
-                        <option value="{{ $t->id }}">
-                            {{ $t->name }} {{ $t->advisory_class ? '(' . $t->advisory_class . ')' : '' }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <button type="submit"
-                    class="rounded-lg px-5 py-2.5 font-semibold text-white transition {{ $isGraduateOrInactive ? 'cursor-not-allowed bg-slate-400' : 'bg-gradient-to-r from-[#0018f9] to-[#0080fe] shadow-[0_4px_14px_-4px_rgba(0,24,249,0.6)] hover:brightness-110' }}"
-                    {{ $isGraduateOrInactive ? 'disabled' : '' }}>
-                {{ $isGraduateOrInactive ? "Can't Enroll" : "Send Enrollment Request" }}
-            </button>
-        </form>
-    </div>
 
     <h3 class="mb-3 flex items-center gap-2 text-[15px] font-semibold text-[#0a1633]">
         <span class="inline-block h-4 w-1 rounded-full bg-gradient-to-b from-[#0018f9] to-[#38bdf8]"></span>
         Your Requests
     </h3>
     <div class="overflow-hidden rounded-xl border border-[#0018f9]/15 shadow-[0_6px_20px_-8px_rgba(0,24,249,0.15)]">
-        <table class="w-full border-collapse text-[14px]">
+        <div class="overflow-x-auto">
+        <table class="w-full border-collapse min-w-[480px] text-[14px]">
             <thead>
                 <tr class="bg-gradient-to-r from-[#0a1633] via-[#0d2450] to-[#164aa8] text-left text-white">
                     <th class="border border-[#0a1633] p-2.5 text-[13px] font-semibold tracking-wide">Teacher</th>
@@ -75,5 +110,6 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
     </div>
 </x-layouts.app>

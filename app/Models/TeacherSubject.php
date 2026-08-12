@@ -12,7 +12,7 @@ class TeacherSubject extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'teacher_id', 'subject_name', 'course_code', 'teacher_code', 'room_no',
+        'teacher_id', 'subject_name', 'course_code', 'teacher_code', 'room_no', 'subject_type',
     ];
 
     public function teacher()

@@ -20,7 +20,8 @@
         </div>
     @else
         <div class="overflow-hidden rounded-xl border border-[#0018f9]/15 shadow-[0_6px_20px_-8px_rgba(0,24,249,0.15)]">
-            <table class="w-full border-collapse text-[14px]">
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[680px] border-collapse text-[14px]">
                 <thead>
                     <tr class="bg-gradient-to-r from-[#0a1633] via-[#0d2450] to-[#164aa8] text-left text-white">
                         <th class="border border-[#0a1633] p-2.5 text-[13px] font-semibold tracking-wide">Subject</th>

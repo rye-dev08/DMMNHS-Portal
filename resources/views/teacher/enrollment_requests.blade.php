@@ -1,5 +1,6 @@
 <x-layouts.app :title="'Enrollment Requests'">
-    <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+    <div id="poll-enrollment-requests">
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
             <span class="inline-block h-5 w-1.5 rounded-full bg-gradient-to-b from-[#0018f9] to-[#38bdf8]"></span>
             <h2 class="m-0 text-[#0a1633]">Enrollment Requests</h2>
@@ -12,7 +13,8 @@
     </div>
 
     <div class="overflow-hidden rounded-xl border border-[#0018f9]/15 shadow-[0_6px_20px_-8px_rgba(0,24,249,0.15)]">
-        <table class="w-full border-collapse text-[14px]">
+    <div class="overflow-x-auto">
+        <table class="w-full min-w-[500px] border-collapse text-[14px]">
             <thead>
                 <tr class="bg-gradient-to-r from-[#0a1633] via-[#0d2450] to-[#164aa8] text-left text-white">
                     <th class="border border-[#0a1633] p-2.5 text-[13px] font-semibold tracking-wide">Student</th>
@@ -34,18 +36,22 @@
                         <td class="border border-[#dbe4f0] p-2.5">
                             @if ($r->status === 'pending')
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <form method="POST" action="{{ route('teacher.enrollment-requests.approve') }}"
-                                          onsubmit="return confirm('Approve this enrollment request?')" class="m-0">
+                                    <form method="POST" action="{{ route('teacher.enrollment-requests.approve') }}" class="m-0">
                                         @csrf
                                         <input type="hidden" name="request_id" value="{{ $r->id }}">
                                         <button type="submit"
+                                                data-confirm="Approve this enrollment request? The student will be added to your advisory with your subjects applied."
+                                                data-confirm-title="Approve Enrollment"
+                                                data-confirm-text="Approve"
                                                 class="rounded-md bg-gradient-to-r from-[#10b981] to-[#059669] px-3 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_3px_10px_-3px_rgba(16,185,129,0.7)] transition hover:brightness-110">Approve</button>
                                     </form>
-                                    <form method="POST" action="{{ route('teacher.enrollment-requests.reject') }}"
-                                          onsubmit="return confirm('Reject this enrollment request?')" class="m-0">
+                                    <form method="POST" action="{{ route('teacher.enrollment-requests.reject') }}" class="m-0">
                                         @csrf
                                         <input type="hidden" name="request_id" value="{{ $r->id }}">
                                         <button type="submit"
+                                                data-confirm="Reject this enrollment request? The student will be notified."
+                                                data-confirm-title="Reject Enrollment"
+                                                data-confirm-text="Reject"
                                                 class="rounded-md bg-gradient-to-r from-[#ef4444] to-[#dc2626] px-3 py-1.5 text-[12.5px] font-semibold text-white shadow-[0_3px_10px_-3px_rgba(239,68,68,0.7)] transition hover:brightness-110">Reject</button>
                                     </form>
                                 </div>
@@ -61,5 +67,6 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
     </div>
 </x-layouts.app>

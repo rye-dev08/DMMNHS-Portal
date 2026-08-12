@@ -37,7 +37,7 @@
         </aside>
 
         {{-- Right panel (58%) --}}
-        <main class="relative flex w-full flex-1 items-center justify-center px-5 py-12 lg:w-[58%] lg:flex-none lg:px-10">
+        <main class="relative flex w-full flex-1 items-center justify-center px-5 py-6 lg:w-[58%] lg:flex-none lg:px-10">
             <x-login-card title="Login to Your Account" subtitle="Enter your credentials to access your portal">
                 <x-notice />
                 <form method="POST" action="{{ route('login.attempt') }}" class="grid gap-5" data-validate>
@@ -58,7 +58,12 @@
                     <div class="grid gap-1.5">
                         <x-password-input id="password" name="password" label="Password"
                                           placeholder="Enter your password" />
-                        <div class="flex justify-end">
+                        <div class="flex items-center justify-between gap-3">
+                            <label class="flex items-center gap-2 text-sm text-slate-700">
+                                <input type="checkbox" name="remember" value="1"
+                                       class="h-4 w-4 rounded border-slate-300 text-[#2563eb] focus:ring-[#2563eb]/30">
+                                Remember Me
+                            </label>
                             <a href="{{ route('contact') }}"
                                class="text-[13px] font-medium text-[#2563eb] transition hover:text-[#1d4ed8] hover:underline">
                                 Forgot Password?
@@ -80,10 +85,19 @@
                         onclick="showNotice('Google sign-in is not configured yet. Please use your portal credentials.', 'info')">
                         Sign in with Google
                     </x-google-button>
+
+                    <a href="{{ route('home') }}"
+                       class="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-[#2563eb]/40 hover:text-[#2563eb]">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                             stroke="currentColor" class="h-4 w-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+                        </svg>
+                        Back to Home
+                    </a>
                 </form>
             </x-login-card>
 
-            <p class="absolute bottom-6 left-0 right-0 px-5 text-center text-[13px] text-slate-500">
+            <p class="absolute bottom-3 left-0 right-0 px-5 text-center text-[13px] text-slate-500">
                 Don't have an account?
                 <a href="{{ route('contact') }}" class="font-medium text-[#2563eb] transition hover:text-[#1d4ed8] hover:underline">
                     Contact your administrator.

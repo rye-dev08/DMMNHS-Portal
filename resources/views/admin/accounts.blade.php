@@ -24,7 +24,13 @@
     </form>
 
     <div class="mb-4 flex flex-wrap gap-2">
-        @foreach (['all' => 'All', 'student' => 'Students', 'teacher' => 'Teachers', 'admin' => 'Admins'] as $key => $label)
+        @foreach ([
+            'all' => 'All',
+            'student' => 'Students',
+            'teacher' => 'Teachers',
+            'office_admin' => 'Office Admins',
+            'system_admin' => 'System Admins',
+        ] as $key => $label)
             <a href="{{ route('admin.accounts', ['role' => $key, 'search' => $search]) }}"
                class="rounded-full px-4 py-1.5 text-[13px] font-semibold no-underline transition {{ $role === $key ? 'bg-gradient-to-r from-[#0018f9] to-[#0080fe] text-white shadow-[0_3px_10px_-3px_rgba(0,24,249,0.6)]' : 'border border-slate-300 bg-white text-slate-600 hover:border-[#0018f9]/40 hover:text-[#0018f9]' }}">
                 {{ $label }}
@@ -43,7 +49,8 @@
     @endif
 
     <div class="overflow-hidden rounded-xl border border-[#0018f9]/15 shadow-[0_6px_20px_-8px_rgba(0,24,249,0.15)]">
-        <table class="w-full border-collapse">
+        <div class="overflow-x-auto">
+        <table class="w-full border-collapse min-w-[720px] text-[14px]">
             <thead>
                 <tr class="bg-gradient-to-r from-[#0a1633] via-[#0d2450] to-[#164aa8] text-left text-white">
                     <th class="border border-[#0a1633] p-2.5 text-[13px] font-semibold tracking-wide">Name</th>
@@ -52,7 +59,7 @@
                     <th class="border border-[#0a1633] p-2.5 text-[13px] font-semibold tracking-wide">Role</th>
                     <th class="border border-[#0a1633] p-2.5 text-[13px] font-semibold tracking-wide">Grade / Advisory</th>
                     <th class="border border-[#0a1633] p-2.5 text-[13px] font-semibold tracking-wide">Status</th>
-                    <th class="border border-[#0a1633] p-2.5 text-[13px] font-semibold tracking-wide">Actions</th>
+                    <th class="border border-[#0a1633] p-2.5 text-[13px] font-semibold tracking-wide whitespace-nowrap">Actions</th>
                 </tr>
             </thead>
             <tbody class="text-[14px]">
@@ -62,7 +69,16 @@
                         <td class="border border-[#dbe4f0] p-2.5 text-slate-600">{{ $u->username }}</td>
                         <td class="border border-[#dbe4f0] p-2.5 text-slate-600">{{ $u->email }}</td>
                         <td class="border border-[#dbe4f0] p-2.5">
-                            <span class="rounded-md px-2 py-0.5 text-[12px] font-semibold capitalize {{ $u->role === 'admin' ? 'bg-[#0018f9]/10 text-[#0018f9]' : ($u->role === 'teacher' ? 'bg-[#38bdf8]/15 text-[#0369a1]' : 'bg-[#10b981]/10 text-[#047857]') }}">{{ $u->role }}</span>
+                            @php
+                                $roleLabels = [
+                                    'system_admin' => ['System Admin', 'bg-[#0018f9]/10 text-[#0018f9]'],
+                                    'office_admin' => ['Office Admin', 'bg-[#7c3aed]/10 text-[#7c3aed]'],
+                                    'teacher' => ['Teacher', 'bg-[#38bdf8]/15 text-[#0369a1]'],
+                                    'student' => ['Student', 'bg-[#10b981]/10 text-[#047857]'],
+                                ];
+                                [$roleLabel, $roleStyle] = $roleLabels[$u->role] ?? [$u->role, 'bg-slate-100 text-slate-600'];
+                            @endphp
+                            <span class="rounded-md px-2 py-0.5 text-[12px] font-semibold {{ $roleStyle }}">{{ $roleLabel }}</span>
                         </td>
                         <td class="border border-[#dbe4f0] p-2.5 text-slate-600">
                             @if ($u->role === 'student')
@@ -80,20 +96,32 @@
                             </span>
                         </td>
                         <td class="border border-[#dbe4f0] p-2.5">
-                            <div class="flex flex-wrap items-center gap-1.5">
+                            <div class="flex items-center gap-1.5 whitespace-nowrap">
                                 <a href="{{ route('admin.accounts.edit', $u->id) }}"
-                                   class="rounded-md border border-[#0018f9]/30 bg-[#0018f9]/5 px-2.5 py-1 text-[12px] font-semibold text-[#0018f9] no-underline transition hover:bg-[#0018f9] hover:text-white">Edit</a>
+                                   class="rounded-lg bg-gradient-to-r from-[#0018f9] to-[#0080fe] px-3 py-1.5 text-[12px] font-semibold text-white no-underline shadow-[0_3px_10px_-3px_rgba(0,24,249,0.6)] transition hover:brightness-110 active:scale-[0.98]">Edit</a>
                                 <form method="POST" action="{{ route('admin.accounts.toggle-status', $u->id) }}" class="m-0">
                                     @csrf
-                                    <button type="submit" class="rounded-md border px-2.5 py-1 text-[12px] font-semibold transition {{ $u->status === 'active' ? 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100' : 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100' }}">
+                                    <button type="submit"
+                                            data-confirm="{{ $u->status === 'active' ? 'Deactivate this account? The user will no longer be able to log in.' : 'Activate this account?' }}"
+                                            data-confirm-title="{{ $u->status === 'active' ? 'Deactivate Account' : 'Activate Account' }}"
+                                            data-confirm-text="{{ $u->status === 'active' ? 'Deactivate' : 'Activate' }}"
+                                            class="rounded-lg {{ $u->status === 'active'
+                                                ? 'bg-gradient-to-r from-[#f59e0b] to-[#d97706]'
+                                                : 'bg-gradient-to-r from-[#10b981] to-[#059669]' }}
+                                                px-3 py-1.5 text-[12px] font-semibold text-white no-underline shadow-[0_3px_10px_-3px_rgba(0,0,0,0.2)] transition hover:brightness-110 active:scale-[0.98]">
                                         {{ $u->status === 'active' ? 'Deactivate' : 'Activate' }}
                                     </button>
                                 </form>
-                                <form method="POST" action="{{ route('admin.accounts.destroy', $u->id) }}"
-                                      onsubmit="return confirm('Delete this user and all their data?')" class="m-0">
+                                <form method="POST" action="{{ route('admin.accounts.destroy', $u->id) }}" class="m-0">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="rounded-md border border-[#b91c1c] bg-[#dc2626] px-2.5 py-1 text-[12px] font-semibold text-white transition hover:bg-[#b91c1c]">Delete</button>
+                                    <button type="submit"
+                                            data-confirm="Delete this user and all their data? This action cannot be undone."
+                                            data-confirm-title="Delete Account"
+                                            data-confirm-text="Delete"
+                                            class="rounded-lg bg-gradient-to-r from-[#ef4444] to-[#dc2626] px-3 py-1.5 text-[12px] font-semibold text-white no-underline shadow-[0_3px_10px_-3px_rgba(239,68,68,0.6)] transition hover:brightness-110 active:scale-[0.98]">
+                                        Delete
+                                    </button>
                                 </form>
                             </div>
                         </td>
@@ -105,6 +133,7 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
     </div>
 
     @if ($users->hasPages())

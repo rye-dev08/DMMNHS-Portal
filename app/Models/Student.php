@@ -12,8 +12,16 @@ class Student extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'user_id', 'sex', 'birthday', 'age', 'grade_level', 'status', 'needs_reenrollment',
+        'user_id', 'student_id_no', 'id_token', 'id_token_generated_at', 'photo',
+        'sex', 'birthday', 'age', 'grade_level', 'status', 'needs_reenrollment',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'id_token_generated_at' => 'datetime',
+        ];
+    }
 
     public function user()
     {

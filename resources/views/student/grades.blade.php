@@ -20,7 +20,7 @@
         @if ($archivedPeriods->isNotEmpty())
             <form method="GET" action="{{ route('student.grades') }}" class="flex items-center gap-2">
                 <select name="term" id="archive-term"
-                        class="rounded-lg border border-[#0018f9]/20 bg-white px-3 py-1.5 text-[13px] text-[#0a1633] focus:outline-none focus:ring-2 focus:ring-[#0018f9]/40">
+                        class="futuristic-select px-3 py-1.5 text-[13px]">
                     <option value="" {{ ! $viewingHistory ? 'selected' : '' }}>Current term</option>
                     @foreach ($archivedPeriods as $ap)
                         <option value="{{ $ap->t }}" {{ $viewingHistory && (int) $selectedTerm === (int) $ap->t && $selectedYear === $ap->y ? 'selected' : '' }}
@@ -35,7 +35,8 @@
     </div>
 
     <div class="overflow-hidden rounded-xl border border-[#0018f9]/15 shadow-[0_6px_20px_-8px_rgba(0,24,249,0.15)]">
-        <table class="w-full border-collapse text-[14px]">
+        <div class="overflow-x-auto">
+        <table class="w-full border-collapse min-w-[560px] text-[14px]">
             <thead>
                 <tr class="bg-gradient-to-r from-[#0a1633] via-[#0d2450] to-[#164aa8] text-left text-white">
                     <th class="border border-[#0a1633] p-2.5 text-[13px] font-semibold tracking-wide">Subject</th>
@@ -69,6 +70,7 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
     </div>
 
     <div class="relative mt-5 overflow-hidden rounded-xl border border-[#0018f9]/15 bg-gradient-to-r from-[#0a1633]/5 to-[#164aa8]/10 p-5 text-center shadow-[0_8px_24px_-10px_rgba(0,24,249,0.2)]">

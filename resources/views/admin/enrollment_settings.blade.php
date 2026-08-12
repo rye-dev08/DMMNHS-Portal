@@ -4,8 +4,6 @@
             <span class="inline-block h-5 w-1.5 rounded-full bg-gradient-to-b from-[#0018f9] to-[#38bdf8]"></span>
             <h2 class="m-0 text-[#0a1633]">Enrollment &amp; Term Management</h2>
         </div>
-        <a href="{{ route('admin.teacher-advisory') }}"
-           class="rounded-lg bg-gradient-to-r from-[#0a1633] to-[#164aa8] px-4 py-2 font-semibold text-white no-underline shadow-[0_4px_14px_-4px_rgba(10,22,51,0.6)] transition hover:brightness-110">Manage Teacher Advisory</a>
     </div>
 
     @php

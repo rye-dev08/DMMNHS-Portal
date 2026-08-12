@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\EnrollmentRequest;
-use App\Models\Setting;
 use App\Models\Student;
+use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,8 +24,10 @@ class EnrollmentController extends Controller
         }
 
         $studentId = (int) $student->id;
-        $isGraduateOrInactive = (int) $student->grade_level >= 13 || $student->status !== 'active';
+        $studentGrade = (int) $student->grade_level;
+        $isGraduateOrInactive = $studentGrade >= 13 || $student->status !== 'active';
 
+        // Use teacher's grade_level column directly
         $teachers = DB::table('teachers as t')
             ->join('users as u', 'u.id', '=', 't.user_id')
             ->leftJoin('teacher_approval as ta', function ($join) {
@@ -34,6 +36,8 @@ class EnrollmentController extends Controller
             ->where('t.status', 'active')
             ->where('u.status', 'active')
             ->where('u.role', 'teacher')
+            ->whereNotNull('t.grade_level')
+            ->where('t.grade_level', $studentGrade)
             ->select('t.id', 'u.name', 't.advisory_class')
             ->orderBy('u.name')
             ->get();
@@ -46,10 +50,23 @@ class EnrollmentController extends Controller
             ->orderByDesc('er.date_requested')
             ->get();
 
+        $latestRequest = $requests->first();
+        $enrollmentState = 'none';
+        if ($latestRequest) {
+            if ($latestRequest->status === 'approved') {
+                $enrollmentState = 'approved';
+            } elseif ($latestRequest->status === 'pending') {
+                $enrollmentState = 'pending';
+            } elseif ($latestRequest->status === 'rejected') {
+                $enrollmentState = 'rejected';
+            }
+        }
+
         return view('student.enrollment_request', [
             'isGraduateOrInactive' => $isGraduateOrInactive,
             'teachers' => $teachers,
             'requests' => $requests,
+            'enrollmentState' => $enrollmentState,
         ]);
     }
 
@@ -84,6 +101,19 @@ class EnrollmentController extends Controller
             }
 
             if ($message === '' && $teacherId > 0) {
+                // Verify teacher has grade_level matching student's grade
+                $teacherGrade = DB::table('teachers')
+                    ->where('id', $teacherId)
+                    ->whereNotNull('grade_level')
+                    ->where('grade_level', (int) $student->grade_level)
+                    ->exists();
+
+                if (! $teacherGrade) {
+                    $message = 'Invalid teacher for your grade level.';
+                }
+            }
+
+            if ($message === '' && $teacherId > 0) {
                 $cap = DB::selectOne(
                     'SELECT COALESCE(ta.max_students, t.max_students, 30) as `limit`
                      FROM teachers t
@@ -105,6 +135,17 @@ class EnrollmentController extends Controller
                         'status' => 'pending',
                         'date_requested' => now(),
                     ]);
+
+                    app(NotificationService::class)->enrollmentRequested(
+                        $teacherId,
+                        auth()->user()->name ?? 'A student'
+                    );
+
+                    app(NotificationService::class)->enrollmentSubmitted(
+                        $studentId,
+                        auth()->user()->name ?? 'A student'
+                    );
+
                     $message = 'Enrollment request sent! Wait for teacher approval.';
                 } else {
                     $message = "Class full (max {$limit}). Try another teacher.";
@@ -114,7 +155,7 @@ class EnrollmentController extends Controller
             }
         }
 
-        $type = str_contains($message, 'sent') ? 'success' : 'error';
+        $type = $message === 'Enrollment request sent! Wait for teacher approval.' ? 'success' : 'error';
         flash_notice($message, $type);
 
         return redirect()->route('student.enrollment');

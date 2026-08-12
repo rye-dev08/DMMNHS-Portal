@@ -9,7 +9,8 @@
             @auth
                 @php
                     $back = match (auth()->user()->role) {
-                        'admin' => route('admin.dashboard'),
+                        'system_admin' => route('admin.dashboard'),
+                        'office_admin' => route('office.dashboard'),
                         'teacher' => route('teacher.dashboard'),
                         default => route('student.dashboard'),
                     };
