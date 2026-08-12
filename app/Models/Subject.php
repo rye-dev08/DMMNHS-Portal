@@ -12,7 +12,7 @@ class Subject extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'teacher_id', 'student_id', 'subject_name', 'course_code', 'teacher_code', 'room_no',
+        'teacher_id', 'student_id', 'subject_name', 'course_code', 'teacher_code', 'room_no', 'subject_type',
     ];
 
     protected function casts(): array

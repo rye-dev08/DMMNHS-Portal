@@ -10,6 +10,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#f6f8fc] text-slate-900">
-    {{ $slot }}
+    <div class="page-fade-in min-h-screen">
+        {{ $slot }}
+    </div>
+    @stack('scripts')
 </body>
 </html>

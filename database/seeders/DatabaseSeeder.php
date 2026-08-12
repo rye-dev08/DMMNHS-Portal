@@ -23,10 +23,22 @@ class DatabaseSeeder extends Seeder
         User::firstOrCreate(
             ['username' => 'admin'],
             [
-                'name' => 'Administrator',
+                'name' => 'System Administrator',
                 'email' => 'admin@dmnhs.edu',
                 'password_hash' => Hash::make('Admin123!'),
-                'role' => 'admin',
+                'role' => 'system_admin',
+                'status' => 'active',
+            ]
+        );
+
+        // Office Administrator demo account.
+        User::firstOrCreate(
+            ['username' => 'office'],
+            [
+                'name' => 'Office Administrator',
+                'email' => 'office@dmnhs.edu',
+                'password_hash' => Hash::make('Office123!'),
+                'role' => 'office_admin',
                 'status' => 'active',
             ]
         );

@@ -228,10 +228,74 @@ function initConfirmDialogs() {
     });
 }
 
+// ---- Loading states on submit buttons --------------------------
+// Prevent duplicate submissions and give visual feedback while a
+// form is being processed. Any form with a submit button gets this
+// behaviour automatically; a button is restored if its page fails.
+function setButtonLoading(btn, loading) {
+    if (!btn) {
+        return;
+    }
+    if (loading) {
+        if (btn.dataset.loadingOriginal === undefined) {
+            btn.dataset.loadingOriginal = btn.innerHTML;
+        }
+        btn.disabled = true;
+        btn.classList.add('btn-loading');
+        btn.dataset.loading = '1';
+    } else {
+        btn.disabled = false;
+        btn.classList.remove('btn-loading');
+        delete btn.dataset.loading;
+        if (btn.dataset.loadingOriginal !== undefined) {
+            btn.innerHTML = btn.dataset.loadingOriginal;
+            delete btn.dataset.loadingOriginal;
+        }
+    }
+}
+
+function initFormLoading() {
+    document.querySelectorAll('form').forEach((form) => {
+        if (form.dataset.loadingBound) {
+            return;
+        }
+        form.dataset.loadingBound = '1';
+
+        form.addEventListener('submit', (e) => {
+            if (e.defaultPrevented) {
+                return;
+            }
+            // Keep the current confirm-modal flow intact: if this form has a
+            // data-confirm submit button, the modal already handles feedback
+            // and calls form.submit() programmatically (no submit event).
+            const confirmBtn = form.querySelector('button[type="submit"][data-confirm]');
+            if (confirmBtn) {
+                return;
+            }
+            form.querySelectorAll('button[type="submit"]').forEach((btn) => setButtonLoading(btn, true));
+        });
+    });
+}
+
 // Keep window.alert mapped to the styled toast.
 window.alert = function (msg) {
     showToast(String(msg), 'error');
 };
+
+// ---- Global error surfacing ------------------------------------
+// Unexpected JS errors / failed AJAX calls should never be silent.
+window.addEventListener('error', (e) => {
+    if (e.target && e.target !== window) {
+        return; // resource load errors (img/css) are not actionable
+    }
+    console.error(e.error || e.message);
+    showToast('An unexpected error occurred. Please try again.', 'error');
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+    console.error(e.reason);
+    showToast('Network error: the request could not be completed.', 'error');
+});
 
 // ---- Password validation helpers ------------------------------
 function passesPasswordPolicy(password) {
@@ -296,7 +360,7 @@ function initFormValidation() {
         const validate = (checkAll) => {
             let firstBad = null;
             let anyError = false;
-            form.querySelectorAll('input[required], select[required], textarea[required], input[data-min], input[data-pattern], input[data-match]').forEach((input) => {
+            form.querySelectorAll('input[required], select[required], textarea[required], input[data-min], input[data-pattern], input[data-match], input[data-password-policy]').forEach((input) => {
                 if (input.type === 'hidden' || input.type === 'submit' || input.disabled) {
                     return;
                 }
@@ -459,9 +523,345 @@ function initSidebarCollapse() {
     toggle.dataset.bound = '1';
 }
 
+// ---- Header notifications bell dropdown -----------------------
+function initNotificationsBell() {
+    const root = document.getElementById('notif-dropdown-root');
+    if (!root || root.dataset.bound) {
+        return;
+    }
+    const bell = document.getElementById('notif-bell');
+    const panel = document.getElementById('notif-panel');
+    if (!bell || !panel) {
+        return;
+    }
+
+    const close = () => panel.classList.add('hidden');
+
+    bell.addEventListener('click', (e) => {
+        e.stopPropagation();
+        panel.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!root.contains(e.target)) {
+            close();
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            close();
+        }
+    });
+
+    root.dataset.bound = '1';
+}
+
+// ---- Top navbar offset (measured from actual header height) -----
+function initNavbarOffset() {
+    const header = document.getElementById('app-header');
+    if (!header || header.dataset.bound) {
+        return;
+    }
+
+    const sync = () => {
+        document.documentElement.style.setProperty('--navbar-height', `${header.offsetHeight}px`);
+    };
+
+    sync();
+    window.addEventListener('resize', sync);
+    header.dataset.bound = '1';
+}
+
+// ============================================================
+// Polling service (auto-refresh data without page reload)
+// ============================================================
+
+const POLL_INTERVALS = {
+    notifications: 30000,
+    announcements: 60000,
+    messages: 30000,
+    dashboard: 60000,
+    gradeSubmissions: 60000,
+    enrollmentRequests: 30000,
+};
+
+const POLL_ERROR_BACKOFF = {
+    base: 5000,
+    max: 120000,
+    multiplier: 2,
+};
+
+const PollingService = {
+    intervals: {},
+    errorCounts: {},
+    active: true,
+    rafQueue: null,
+    pendingUpdates: {},
+
+    start(key, url, options) {
+        if (this.intervals[key]) {
+            return;
+        }
+
+        const interval = options?.interval || POLL_INTERVALS[key] || 30000;
+        const immediate = options?.immediate !== false;
+        const onUpdate = options?.onUpdate || (() => {});
+        const onError = options?.onError || (() => {});
+
+        if (immediate) {
+            this.fetch(key, url, onUpdate, onError);
+        }
+
+        this.intervals[key] = setInterval(() => {
+            this.fetch(key, url, onUpdate, onError);
+        }, interval);
+    },
+
+    stop(key) {
+        if (this.intervals[key]) {
+            clearInterval(this.intervals[key]);
+            delete this.intervals[key];
+        }
+    },
+
+    stopAll() {
+        Object.keys(this.intervals).forEach((key) => this.stop(key));
+    },
+
+    async fetch(key, url, onUpdate, onError) {
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin',
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json();
+            this.errorCounts[key] = 0;
+            onUpdate(data, key);
+        } catch (error) {
+            this.errorCounts[key] = (this.errorCounts[key] || 0) + 1;
+            onError(error, key);
+        }
+    },
+
+    // Smooth DOM update with requestAnimationFrame and pulse animation
+    smoothUpdate(element, updateFn) {
+        if (!element) {
+            return;
+        }
+
+        const oldValue = element.textContent;
+
+        requestAnimationFrame(() => {
+            updateFn(element);
+
+            const newValue = element.textContent;
+            if (oldValue !== newValue) {
+                element.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+                element.style.opacity = '0.4';
+                element.style.transform = 'scale(0.95)';
+
+                requestAnimationFrame(() => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'scale(1)';
+                });
+            }
+        });
+    },
+
+    // Update the notification bell badge and count
+    updateNotificationsBell(data) {
+        const badge = document.getElementById('notif-badge');
+        const countEl = document.getElementById('notif-count');
+
+        this.smoothUpdate(badge, (el) => {
+            if (el && data.unreadCount !== undefined) {
+                el.textContent = data.unreadCount;
+                el.style.display = data.unreadCount > 0 ? 'flex' : 'none';
+            }
+        });
+
+        this.smoothUpdate(countEl, (el) => {
+            if (el && data.unreadCount !== undefined) {
+                el.textContent = data.unreadCount;
+            }
+        });
+    },
+
+    // Update the announcement unread count
+    updateAnnouncementUnread(data) {
+        const badge = document.getElementById('announcement-unread-badge');
+
+        this.smoothUpdate(badge, (el) => {
+            if (el && data.unreadCount !== undefined) {
+                el.textContent = data.unreadCount;
+                el.style.display = data.unreadCount > 0 ? 'inline-flex' : 'none';
+            }
+        });
+    },
+
+    // Update the message pending count in the sidebar
+    updateMessageCount(data) {
+        const badge = document.getElementById('message-pending-badge');
+
+        this.smoothUpdate(badge, (el) => {
+            if (el && data.pendingCount !== undefined) {
+                el.textContent = data.pendingCount;
+                el.style.display = data.pendingCount > 0 ? 'inline-flex' : 'none';
+            }
+        });
+    },
+
+    // Update dashboard stats
+    updateDashboardStats(data) {
+        Object.keys(data).forEach((key) => {
+            const el = document.getElementById(`poll-stat-${key}`);
+            if (el) {
+                this.smoothUpdate(el, (element) => {
+                    element.textContent = data[key];
+                });
+            }
+        });
+    },
+
+    // Update grade submission progress
+    updateGradeSubmissions(data) {
+        if (data.summary) {
+            const submittedEl = document.getElementById('poll-grade-submitted');
+            const pendingEl = document.getElementById('poll-grade-pending');
+            const lateEl = document.getElementById('poll-grade-late');
+
+            this.smoothUpdate(submittedEl, (el) => {
+                if (el) el.textContent = data.summary.submitted;
+            });
+            this.smoothUpdate(pendingEl, (el) => {
+                if (el) el.textContent = data.summary.pending;
+            });
+            this.smoothUpdate(lateEl, (el) => {
+                if (el) el.textContent = data.summary.late;
+            });
+        }
+    },
+
+    // Update enrollment request count
+    updateEnrollmentRequests(data) {
+        const badge = document.getElementById('poll-enrollment-count');
+
+        this.smoothUpdate(badge, (el) => {
+            if (el && data.pendingCount !== undefined) {
+                el.textContent = data.pendingCount;
+                el.style.display = data.pendingCount > 0 ? 'inline-flex' : 'none';
+            }
+        });
+    },
+};
+
+// ---- Smooth page transitions (fade out on navigation) ---------
+function initPageTransitions() {
+    const main = document.getElementById('page-main');
+    if (!main) {
+        return;
+    }
+
+    document.addEventListener('click', (e) => {
+        if (e.defaultPrevented || e.button !== 0) {
+            return;
+        }
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+            return;
+        }
+        const link = e.target.closest('a');
+        if (!link) {
+            return;
+        }
+        if (link.target === '_blank' || link.download) {
+            return;
+        }
+        if (link.hasAttribute('onclick')) {
+            return;
+        }
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('javascript:')) {
+            return;
+        }
+        if (link.origin !== window.location.origin) {
+            return;
+        }
+
+        e.preventDefault();
+        main.classList.add('page-fade-out');
+        setTimeout(() => {
+            window.location.assign(href);
+        }, 140);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Start notification polling on all authenticated pages.
+    PollingService.start('notifications', '/poll/notifications', {
+        onUpdate: (data) => PollingService.updateNotificationsBell(data),
+    });
+
+    // Start announcement polling on all authenticated pages.
+    PollingService.start('announcements', '/poll/announcements', {
+        onUpdate: (data) => PollingService.updateAnnouncementUnread(data),
+    });
+
+    // Start message polling on all authenticated pages.
+    PollingService.start('messages', '/poll/messages', {
+        onUpdate: (data) => PollingService.updateMessageCount(data),
+    });
+
+    // Start dashboard polling on dashboard pages.
+    const dashboardEl = document.getElementById('poll-dashboard');
+    if (dashboardEl) {
+        PollingService.start('dashboard', '/poll/dashboard', {
+            onUpdate: (data) => PollingService.updateDashboardStats(data),
+        });
+    }
+
+    // Start grade submission polling on grade submission pages.
+    const gradeSubEl = document.getElementById('poll-grade-submissions');
+    if (gradeSubEl) {
+        PollingService.start('gradeSubmissions', '/poll/grade-submissions', {
+            onUpdate: (data) => PollingService.updateGradeSubmissions(data),
+        });
+    }
+
+    // Start enrollment request polling on teacher enrollment pages.
+    const enrollmentEl = document.getElementById('poll-enrollment-requests');
+    if (enrollmentEl) {
+        PollingService.start('enrollmentRequests', '/poll/enrollment-requests', {
+            onUpdate: (data) => PollingService.updateEnrollmentRequests(data),
+        });
+    }
+});
+
 document.addEventListener('DOMContentLoaded', initHeaderMenu);
 document.addEventListener('DOMContentLoaded', initSidebarCollapse);
 document.addEventListener('DOMContentLoaded', initPasswordToggles);
 document.addEventListener('DOMContentLoaded', initFormValidation);
 document.addEventListener('DOMContentLoaded', initConfirmDialogs);
+document.addEventListener('DOMContentLoaded', initNotificationsBell);
+document.addEventListener('DOMContentLoaded', initNavbarOffset);
+document.addEventListener('DOMContentLoaded', initFormLoading);
+document.addEventListener('DOMContentLoaded', initPageTransitions);
+
+// Expose helpers for inline scripts / onclick handlers.
+window.showToast = showToast;
+window.showNotice = showNotice;
+window.floatingAlert = floatingAlert;
+window.showModal = showModal;
+window.dismissToast = dismissToast;
+window.setButtonLoading = setButtonLoading;
+window.showConfirm = showConfirm;
+window.PollingService = PollingService;
 

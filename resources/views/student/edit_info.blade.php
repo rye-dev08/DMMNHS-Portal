@@ -54,7 +54,7 @@
                 <div class="grid gap-1.5">
                     <label for="sex" class="text-[13px] font-semibold text-[#0a1633]">Sex</label>
                     <select id="sex" name="sex" data-validate
-                            class="w-full rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9] focus:ring-2 focus:ring-[#0018f9]/15">
+                            class="futuristic-select w-full px-3 py-2 text-[14px]">
                         <option value="">Select</option>
                         <option value="M" {{ old('sex', $student->sex ?? '') === 'M' ? 'selected' : '' }}>Male</option>
                         <option value="F" {{ old('sex', $student->sex ?? '') === 'F' ? 'selected' : '' }}>Female</option>

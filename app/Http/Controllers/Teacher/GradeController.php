@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Grade;
 use App\Models\Setting;
 use App\Models\Teacher;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -65,24 +66,69 @@ class GradeController extends Controller
 
         if ($grade === '') {
             $grade = 'N/A';
+        } elseif (! is_numeric($grade)) {
+            flash_notice('Grade must be a number between 0 and 100, or N/A.', 'error');
+
+            return redirect()->route('teacher.submit-grades')->withInput();
         } else {
             $numeric = (int) $grade;
-            $grade = $numeric > 100 ? 100 : ($numeric < 0 ? 0 : $grade);
+            if ($numeric > 100 || $numeric < 0) {
+                flash_notice('Grade must be between 0 and 100. The value was not saved.', 'error');
+
+                return redirect()->route('teacher.submit-grades')->withInput();
+            }
+            $grade = (string) $numeric;
         }
 
-        $quarter = 'Term ' . (int) (Setting::find(1)->current_term ?? 1);
+        try {
+            $quarter = 'Term '.(int) (Setting::find(1)->current_term ?? 1);
 
-        Grade::updateOrCreate(
-            ['student_id' => $studentId, 'subject_id' => $subjectId, 'quarter' => $quarter],
-            ['grade' => $grade, 'remarks' => $remarks, 'date_submitted' => now()]
-        );
+            Grade::updateOrCreate(
+                ['student_id' => $studentId, 'subject_id' => $subjectId, 'quarter' => $quarter],
+                ['grade' => $grade, 'remarks' => $remarks, 'date_submitted' => now()]
+            );
 
-        $studentName = DB::table('students as s')
-            ->join('users as u', 'u.id', '=', 's.user_id')
-            ->where('s.id', $studentId)
-            ->value('u.name') ?? '';
+            $studentName = DB::table('students as s')
+                ->join('users as u', 'u.id', '=', 's.user_id')
+                ->where('s.id', $studentId)
+                ->value('u.name') ?? '';
 
-        $subjectName = DB::table('subjects')->where('id', $subjectId)->value('subject_name') ?? '';
+            $subjectName = DB::table('subjects')->where('id', $subjectId)->value('subject_name') ?? '';
+
+            $service = app(NotificationService::class);
+            $term = (int) (Setting::find(1)->current_term ?? 1);
+            $quarter = 'Term '.$term;
+
+            $service->gradeSubmitted($studentId, $subjectName, $grade, $term);
+            $service->syncGradeCompletion($studentId);
+
+            // Notify the teacher once every assigned student's grade for this
+            // subject unit is in, so the "complete" message isn't sent after a
+            // single grade save (and the teacher user id, not teachers.id, is
+            // passed to the notification service).
+            $schoolYear = (string) (Setting::find(1)->current_school_year ?? '');
+            $assigned = (int) DB::table('subjects')
+                ->where('teacher_id', $teacherId)
+                ->where('subject_name', $subjectName)
+                ->distinct()
+                ->count('student_id');
+            $graded = (int) DB::table('grades as g')
+                ->join('subjects as s', 's.id', '=', 'g.subject_id')
+                ->where('s.teacher_id', $teacherId)
+                ->where('s.subject_name', $subjectName)
+                ->where('g.quarter', $quarter)
+                ->distinct()
+                ->count('g.student_id');
+
+            if ($assigned > 0 && $graded >= $assigned) {
+                $service->gradeSubmissionCompleted((int) auth()->id(), $subjectName, $term, $schoolYear);
+            }
+        } catch (\Throwable $e) {
+            report($e);
+            flash_notice('Unable to save the grade. Please try again.', 'error');
+
+            return redirect()->route('teacher.submit-grades')->withInput();
+        }
 
         \Log::info("Grade saved by teacher {$teacherId} for student {$studentName} - {$subjectName}");
         flash_notice("Grade saved for {$studentName} - {$subjectName}", 'success');
@@ -111,7 +157,7 @@ class GradeController extends Controller
 
         $subjects = DB::table('subjects as s')
             ->selectRaw(
-                's.id, s.subject_name as name, ' .
+                's.id, s.subject_name as name, '.
                 'COALESCE((SELECT g2.grade FROM grades g2 WHERE g2.subject_id = s.id AND g2.student_id = ? ORDER BY g2.date_submitted DESC LIMIT 1), \'N/A\') as current_grade',
                 [$studentId]
             )

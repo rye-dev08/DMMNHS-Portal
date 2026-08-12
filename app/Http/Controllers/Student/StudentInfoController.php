@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,15 +25,16 @@ class StudentInfoController extends Controller
             $info = $student;
         } else {
             $hasProfile = false;
+            $user = User::find($user_id);
             $info = (object) [
-                'name' => auth()->user()->name,
+                'name' => $user->name ?? 'N/A',
                 'sex' => 'N/A',
                 'birthday' => 'N/A',
                 'age' => 'N/A',
                 'grade_level' => 'N/A',
-                'username' => 'N/A',
-                'email' => 'N/A',
-                'status' => 'N/A',
+                'username' => $user->username ?? 'N/A',
+                'email' => $user->email ?? 'N/A',
+                'status' => $user->status ?? 'N/A',
             ];
         }
 
@@ -84,20 +86,27 @@ class StudentInfoController extends Controller
             'age' => ['nullable', 'integer', 'min:1', 'max:99'],
         ])->validate();
 
-        $user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-        ]);
-
-        if ($student) {
-            $student->update([
-                'sex' => $validated['sex'] ?? null,
-                'birthday' => $validated['birthday'] ?? null,
-                'age' => $validated['age'] ?? null,
+        try {
+            $user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
             ]);
-        }
 
-        flash_modal('Your personal information has been updated.', 'success', 'Info Updated');
+            if ($student) {
+                $student->update([
+                    'sex' => $validated['sex'] ?? null,
+                    'birthday' => $validated['birthday'] ?? null,
+                    'age' => $validated['age'] ?? null,
+                ]);
+            }
+
+            app(NotificationService::class)->profileUpdated($user);
+
+            flash_notice('Your personal information has been updated.', 'success');
+        } catch (\Throwable $e) {
+            report($e);
+            flash_notice('Unable to update your information. Please try again.', 'error');
+        }
 
         return redirect()->route('student.info');
     }

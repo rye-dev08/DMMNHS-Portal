@@ -21,11 +21,11 @@
     {{-- Info chips --}}
     <div class="mb-5 flex flex-wrap gap-2">
         <span class="rounded-lg border border-[#0018f9]/20 bg-white px-3 py-1.5 text-[12.5px] text-slate-600">Username: <strong class="text-[#0a1633]">{{ $user->username }}</strong></span>
-        <span class="rounded-lg border border-[#0018f9]/20 bg-white px-3 py-1.5 text-[12.5px] text-slate-600">Role: <strong class="capitalize text-[#0018f9]">{{ $user->role }}</strong></span>
+        <span class="rounded-lg border border-[#0018f9]/20 bg-white px-3 py-1.5 text-[12.5px] text-slate-600">Role: <strong class="capitalize text-[#0018f9]">{{ str_replace('_', ' ', $user->role) }}</strong></span>
         <span class="rounded-lg border px-3 py-1.5 text-[12.5px] text-slate-600 {{ $user->status === 'active' ? 'border-emerald-300 bg-emerald-50 text-emerald-700' : 'border-slate-300 bg-slate-100 text-slate-600' }}">Status: <strong>{{ $user->status }}</strong></span>
     </div>
 
-    <form method="POST" action="{{ route('admin.accounts.update', $user) }}" class="mb-6 max-w-[900px] rounded-2xl border border-[#0018f9]/15 bg-white/80 p-5 shadow-[0_8px_24px_-10px_rgba(0,24,249,0.18)] sm:p-6">
+    <form method="POST" action="{{ route('admin.accounts.update', $user) }}" data-validate class="mb-6 max-w-[900px] rounded-2xl border border-[#0018f9]/15 bg-white/80 p-5 shadow-[0_8px_24px_-10px_rgba(0,24,249,0.18)] sm:p-6">
         @csrf
         @method('PUT')
 
@@ -46,7 +46,7 @@
                 <h3 class="m-0 text-[15px] font-semibold text-[#0a1633]">Student Profile</h3>
             </div>
             <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-4">
-                <select name="sex" class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
+                <select name="sex" class="futuristic-select px-2.5 py-1.5 text-[14px]">
                     <option value="">Sex</option>
                     <option value="M" {{ old('sex', $user->student->sex ?? '') === 'M' ? 'selected' : '' }}>Male</option>
                     <option value="F" {{ old('sex', $user->student->sex ?? '') === 'F' ? 'selected' : '' }}>Female</option>
@@ -55,8 +55,15 @@
                        class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
                 <input type="number" name="age" placeholder="Age" value="{{ old('age', $user->student->age ?? '') }}"
                        class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
-                <input type="number" name="grade_level" placeholder="Grade Level" value="{{ old('grade_level', $user->student->grade_level ?? '') }}"
-                       class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
+                <select name="grade_level" class="futuristic-select px-2.5 py-1.5 text-[14px]">
+                    <option value="">Grade Level</option>
+                    <option value="7" {{ old('grade_level', $user->student->grade_level ?? '') === '7' ? 'selected' : '' }}>Grade 7</option>
+                    <option value="8" {{ old('grade_level', $user->student->grade_level ?? '') === '8' ? 'selected' : '' }}>Grade 8</option>
+                    <option value="9" {{ old('grade_level', $user->student->grade_level ?? '') === '9' ? 'selected' : '' }}>Grade 9</option>
+                    <option value="10" {{ old('grade_level', $user->student->grade_level ?? '') === '10' ? 'selected' : '' }}>Grade 10</option>
+                    <option value="11" {{ old('grade_level', $user->student->grade_level ?? '') === '11' ? 'selected' : '' }}>Grade 11</option>
+                    <option value="12" {{ old('grade_level', $user->student->grade_level ?? '') === '12' ? 'selected' : '' }}>Grade 12</option>
+                </select>
             </div>
         @elseif ($user->role === 'teacher')
             <div class="mb-3 mt-6 flex items-center gap-2">
@@ -64,7 +71,16 @@
                 <h3 class="m-0 text-[15px] font-semibold text-[#0a1633]">Teacher Profile</h3>
             </div>
             <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-                <input type="text" name="advisory_class" placeholder="Advisory Class (e.g. 7-A)" value="{{ old('advisory_class', $user->teacher->advisory_class ?? '') }}"
+                <select name="grade_level" class="futuristic-select px-2.5 py-1.5 text-[14px]">
+                    <option value="">Grade Level</option>
+                    <option value="7" {{ old('grade_level', $user->teacher->grade_level ?? '') === '7' ? 'selected' : '' }}>Grade 7</option>
+                    <option value="8" {{ old('grade_level', $user->teacher->grade_level ?? '') === '8' ? 'selected' : '' }}>Grade 8</option>
+                    <option value="9" {{ old('grade_level', $user->teacher->grade_level ?? '') === '9' ? 'selected' : '' }}>Grade 9</option>
+                    <option value="10" {{ old('grade_level', $user->teacher->grade_level ?? '') === '10' ? 'selected' : '' }}>Grade 10</option>
+                    <option value="11" {{ old('grade_level', $user->teacher->grade_level ?? '') === '11' ? 'selected' : '' }}>Grade 11</option>
+                    <option value="12" {{ old('grade_level', $user->teacher->grade_level ?? '') === '12' ? 'selected' : '' }}>Grade 12</option>
+                </select>
+                <input type="text" name="advisory_class" placeholder="Advisory Class (e.g. 11-A)" value="{{ old('advisory_class', $user->teacher->advisory_class ?? '') }}"
                        class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
                 <input type="number" name="max_students" placeholder="Max Students" min="0" value="{{ old('max_students', $user->teacher->max_students ?? 0) }}"
                        class="rounded-lg border border-[#0018f9]/20 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-[#0018f9]">
@@ -83,10 +99,10 @@
             <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 text-[13px] font-bold text-white">!</span>
             <h3 class="m-0 text-[15px] font-semibold text-[#0a1633]">Reset Password</h3>
         </div>
-        <form method="POST" action="{{ route('admin.accounts.reset-password', $user) }}" class="max-w-[620px]">
+        <form method="POST" action="{{ route('admin.accounts.reset-password', $user) }}" data-validate class="max-w-[620px]">
             @csrf
             <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                <input type="password" name="password" placeholder="New Password" required
+                <input type="password" name="password" placeholder="New Password" required data-password-policy data-min="8"
                        class="rounded-lg border border-amber-300/60 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20">
                 <input type="password" name="password_confirmation" placeholder="Confirm New Password" required
                        class="rounded-lg border border-amber-300/60 bg-white p-2.5 text-[14px] shadow-sm outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20">

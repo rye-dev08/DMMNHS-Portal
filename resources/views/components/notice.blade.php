@@ -5,8 +5,13 @@
     @endphp
     <script>
         (function () {
+            var shown = false;
             var run = function () {
+                if (shown) {
+                    return true;
+                }
                 if (typeof showToast === 'function') {
+                    shown = true;
                     showToast(@json($message), @json($type));
                     return true;
                 }
@@ -14,7 +19,7 @@
             };
             if (!run()) {
                 document.addEventListener('DOMContentLoaded', run);
-                setTimeout(run, 200);
+                setTimeout(run, 300);
             }
         })();
     </script>
@@ -28,8 +33,13 @@
     @endphp
     <script>
         (function () {
+            var shown = false;
             var run = function () {
+                if (shown) {
+                    return true;
+                }
                 if (typeof showModal === 'function') {
+                    shown = true;
                     showModal(@json($modalMessage), @json($modalType), @json($modalTitle));
                     return true;
                 }
@@ -37,7 +47,7 @@
             };
             if (!run()) {
                 document.addEventListener('DOMContentLoaded', run);
-                setTimeout(run, 200);
+                setTimeout(run, 300);
             }
         })();
     </script>

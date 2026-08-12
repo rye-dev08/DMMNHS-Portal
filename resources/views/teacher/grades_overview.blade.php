@@ -29,7 +29,8 @@
     @else
         <div class="overflow-hidden rounded-xl border border-[#0018f9]/15 shadow-[0_6px_20px_-8px_rgba(0,24,249,0.15)]">
             <div class="overflow-x-auto">
-                <table class="w-full border-collapse text-[14px]" style="min-width:800px;">
+                <table class="w-full border-collapse min-w-[600px] text-[14px]">
+                    <thead>
                     <thead>
                         <tr>
                             <th style="position:sticky; left:0; background:linear-gradient(180deg,#0a1633,#164aa8); color:#fff;"

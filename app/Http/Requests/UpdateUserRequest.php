@@ -21,7 +21,7 @@ class UpdateUserRequest extends FormRequest
             'sex' => ['nullable', 'in:M,F'],
             'birthday' => ['nullable', 'date'],
             'age' => ['nullable', 'integer', 'min:1'],
-            'grade_level' => ['nullable', 'integer', 'min:1'],
+            'grade_level' => ['nullable', 'integer', 'min:7', 'max:12'],
 
             // Teacher profile fields (used when role == teacher).
             'advisory_class' => ['nullable', 'string', 'max:50'],

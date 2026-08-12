@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -38,12 +39,19 @@ class InfoController extends Controller
             'email' => ['required', 'email', 'max:100'],
         ])->validate();
 
-        $user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-        ]);
+        try {
+            $user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+            ]);
 
-        flash_modal('Your personal information has been updated.', 'success', 'Info Updated');
+            app(NotificationService::class)->profileUpdated($user);
+
+            flash_notice('Your personal information has been updated.', 'success');
+        } catch (\Throwable $e) {
+            report($e);
+            flash_notice('Unable to update your information. Please try again.', 'error');
+        }
 
         return redirect()->route('teacher.info');
     }

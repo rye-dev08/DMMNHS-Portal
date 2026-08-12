@@ -1,7 +1,8 @@
 @php
     $role = auth()->check() ? auth()->user()->role : '';
     $homeUrl = match ($role) {
-        'admin' => route('admin.dashboard'),
+        'system_admin' => route('admin.dashboard'),
+        'office_admin' => route('office.dashboard'),
         'teacher' => route('teacher.dashboard'),
         'student' => route('student.dashboard'),
         default => route('login'),
@@ -24,31 +25,52 @@
             'phone' => '<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />',
             'person' => '<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />',
             'key' => '<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />',
+            'bell' => '<path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />',
+            'requirement' => '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />',
+            'timeline' => '<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 6.75h15m-15 0 3.75 3.75L4.5 6.75Zm15 0-3.75 3.75 3.75-3.75Zm-15 4.5h15m-15 0 3.75 3.75L4.5 11.25Zm15 0-3.75 3.75 3.75-3.75Zm-15 4.5h15m-15 0 3.75 3.75L4.5 15.75Zm15 0-3.75 3.75 3.75-3.75Z" />',
         ];
         return $patterns[$key] ?? $patterns['grid'];
     };
 
     $items = match ($role) {
-        'admin' => [
+        'system_admin' => [
             ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'icon' => 'grid'],
             ['label' => 'Manage Accounts', 'route' => 'admin.accounts', 'icon' => 'users'],
             ['label' => 'Create Account', 'route' => 'admin.accounts.create', 'icon' => 'plus'],
             ['label' => 'Enrollment Settings', 'route' => 'admin.enrollment-settings', 'icon' => 'sliders'],
-            ['label' => 'Teacher Advisory', 'route' => 'admin.teacher-advisory', 'icon' => 'book'],
-            ['label' => 'Assign Class', 'route' => 'admin.assign-class', 'icon' => 'plus'],
+        ],
+        'office_admin' => [
+            ['label' => 'Dashboard', 'route' => 'office.dashboard', 'icon' => 'grid'],
+            ['label' => 'Academic Calendar', 'route' => 'office.academic-calendar', 'icon' => 'calendar'],
+            ['label' => 'Announcements', 'route' => 'office.announcements', 'icon' => 'bell'],
+            ['label' => 'Student Digital IDs', 'route' => 'office.digital-ids', 'icon' => 'id'],
+            ['label' => 'Teacher Advisory', 'route' => 'office.teacher-advisory', 'icon' => 'book'],
+            ['label' => 'Assign Class', 'route' => 'office.assign-class', 'icon' => 'badge'],
+            ['label' => 'Grade Submissions', 'route' => 'office.grade-submissions', 'icon' => 'tick'],
+            ['label' => 'Message Center', 'route' => 'office.message-center', 'icon' => 'phone'],
+            ['label' => 'Requirements', 'route' => 'office.requirements', 'icon' => 'requirement'],
         ],
         'teacher' => [
             ['label' => 'Dashboard', 'route' => 'teacher.dashboard', 'icon' => 'grid'],
             ['label' => 'Advisory Portal', 'route' => 'teacher.advisory-portal', 'icon' => 'book'],
             ['label' => 'Enrollment Requests', 'route' => 'teacher.enrollment-requests', 'icon' => 'clipboard'],
+            ['label' => 'Requirements', 'route' => 'teacher.requirements', 'icon' => 'requirement'],
             ['label' => 'Submit Grades', 'route' => 'teacher.submit-grades', 'icon' => 'tick'],
+            ['label' => 'Grade Submissions', 'route' => 'teacher.grade-submissions', 'icon' => 'clipboard'],
             ['label' => 'Grades Overview', 'route' => 'teacher.grades-overview', 'icon' => 'chart'],
+            ['label' => 'Academic Calendar', 'route' => 'teacher.calendar', 'icon' => 'calendar'],
+            ['label' => 'Announcements', 'route' => 'announcements', 'icon' => 'bell'],
         ],
         'student' => [
             ['label' => 'Dashboard', 'route' => 'student.dashboard', 'icon' => 'grid'],
+            ['label' => 'Digital ID', 'route' => 'student.digital-id', 'icon' => 'id'],
             ['label' => 'Class Schedule', 'route' => 'student.schedule', 'icon' => 'calendar'],
+            ['label' => 'Academic Calendar', 'route' => 'student.calendar', 'icon' => 'calendar'],
+            ['label' => 'Announcements', 'route' => 'announcements', 'icon' => 'bell'],
             ['label' => 'Grades', 'route' => 'student.grades', 'icon' => 'chart'],
             ['label' => 'Enrollment Request', 'route' => 'student.enrollment', 'icon' => 'clipboard'],
+            ['label' => 'Requirements', 'route' => 'student.requirements', 'icon' => 'requirement'],
+            ['label' => 'Timeline', 'route' => 'student.timeline', 'icon' => 'timeline'],
         ],
         default => [],
     };
@@ -65,38 +87,40 @@
     @csrf
 </form>
 
-<div id="sidebar-overlay" class="fixed inset-0 z-30 hidden bg-slate-900/60 backdrop-blur-sm lg:hidden"></div>
+<div id="sidebar-overlay" class="fixed inset-0 z-30 hidden h-[calc(100vh-4rem)] bg-slate-900/60 backdrop-blur-sm lg:hidden"></div>
 
     <aside id="app-sidebar"
-           class="fixed inset-y-0 left-0 z-40 flex w-[264px] -translate-x-full flex-col border-r border-white/10 bg-gradient-to-b from-[#0a1633] via-[#0d2450] to-[#164aa8] transition-all duration-300 lg:translate-x-0">
+           class="fixed inset-y-0 left-0 z-40 flex w-[264px] -translate-x-full flex-col border-r border-white/10 bg-gradient-to-b from-[#0a1633] via-[#0d2450] to-[#164aa8] transition-[width,transform] duration-300 lg:translate-x-0">
 
     {{-- Futuristic background --}}
     <x-decorative-background :grid-size="'30px'" />
 
-    <div class="relative z-10 flex flex-1 flex-col">
+    <div class="relative z-10 flex min-h-0 flex-1 flex-col">
         {{-- Logo --}}
-        <a href="{{ $homeUrl }}" class="sidebar-logo flex items-center gap-3 border-b border-white/10 px-5 py-5 no-underline">
-             <img src="{{ asset('images/dmnhs-no-bg.jpg') }}" alt="School Logo"
-                  class="h-11 w-11 rounded-[10px] border border-white/30 bg-white/10 object-cover shadow-[0_0_18px_rgba(45,125,246,0.45)]">
-             <div>
-                 <span class="sidebar-brand-text block text-[14px] font-bold leading-tight text-white">DMMNHS</span>
-                 <span class="sidebar-brand-text block text-[11px] tracking-wide text-white/60">Student Portal</span>
-             </div>
-         </a>
+         <a href="{{ $homeUrl }}" class="sidebar-logo flex items-center gap-3 border-b border-white/10 px-5 py-4 no-underline">
+              <img src="{{ asset('images/dmnhs-no-bg.jpg') }}" alt="School Logo"
+                   class="h-10 w-10 rounded-[10px] border border-white/30 bg-white/10 object-cover shadow-[0_0_18px_rgba(45,125,248,0.45)]">
+              <div class="sidebar-brand-text-wrapper">
+                  <span class="sidebar-brand-text block text-[14px] font-bold leading-tight text-white">DMMNHS</span>
+                  <span class="sidebar-brand-text block text-[11px] tracking-wide text-white/60">Student Portal</span>
+              </div>
+          </a>
 
         {{-- Profile chip --}}
-        <div class="sidebar-profile mx-4 mt-4 flex items-center gap-2.5 rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 backdrop-blur">
-             <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#38bdf8] to-[#2563eb] text-[14px] font-bold text-white shadow-[0_0_12px_rgba(56,189,248,0.5)]">
-                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+        @auth
+            <div class="sidebar-profile mx-4 mt-4 flex items-center gap-2.5 rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 backdrop-blur">
+                 <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#38bdf8] to-[#2563eb] text-[14px] font-bold text-white shadow-[0_0_12px_rgba(56,189,248,0.5)]">
+                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                 </div>
+                 <div class="sidebar-chip-text min-w-0">
+                     <p class="truncate text-[13px] font-semibold text-white">{{ auth()->user()->name }}</p>
+                     <p class="text-[11px] capitalize text-white/55">{{ str_replace('_', ' ', auth()->user()->role) }}</p>
+                 </div>
              </div>
-             <div class="sidebar-chip-text min-w-0">
-                 <p class="truncate text-[13px] font-semibold text-white">{{ auth()->user()->name }}</p>
-                 <p class="text-[11px] capitalize text-white/55">{{ auth()->user()->role }}</p>
-             </div>
-         </div>
+        @endauth
 
         {{-- Navigation --}}
-        <nav class="sidebar-nav mt-4 flex-1 overflow-y-auto px-3 pb-4">
+        <nav class="sidebar-nav mt-3 min-h-0 flex-1 overflow-y-auto px-3 pb-4">
             <p class="sidebar-section-label px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">Menu</p>
             <ul class="grid gap-1">
                 @foreach ($items as $item)
@@ -120,7 +144,7 @@
                 @endforeach
             </ul>
 
-            <p class="sidebar-section-label mb-1.5 mt-4 px-2 pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">Account</p>
+            <p class="sidebar-section-label mb-1.5 mt-3 px-2 pt-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">Account</p>
             <div class="sidebar-secondary-nav grid gap-1">
                 @foreach ($secondaryItems as $item)
                     @php
@@ -148,10 +172,10 @@
 
         {{-- Logout footer --}}
         <div class="sidebar-footer border-t border-white/10 p-3">
-            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+            <a href="{{ route('logout') }}" onclick="event.preventDefault(); showConfirm('Are you sure you want to log out of your account?', { title: 'Logout', confirmText: 'Logout', onConfirm: function () { document.getElementById('logout-form').submit(); } });"
                class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] font-medium text-white/70 transition hover:bg-[#dc2626]/15 hover:text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-[18px] w-[18px] shrink-0 text-white/50">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 1 7.5 21h6a2.25 2.25 0 0 1 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
                 </svg>
                 <span class="sidebar-label">Logout</span>
             </a>

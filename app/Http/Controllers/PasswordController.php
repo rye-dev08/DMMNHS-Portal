@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Rules\PasswordPolicy;
+use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
@@ -27,9 +27,17 @@ class PasswordController extends Controller
         } elseif (! $this->passesPolicy($request->string('new_password')->toString())) {
             flash_notice('Password must be at least 8 chars and include uppercase or symbol', 'error');
         } else {
-            $user->password_hash = Hash::make($request->string('new_password')->toString());
-            $user->save();
-            flash_modal('Your password has been changed successfully.', 'success', 'Password Updated');
+            try {
+                $user->password_hash = Hash::make($request->string('new_password')->toString());
+                $user->save();
+
+                app(NotificationService::class)->passwordChanged($user);
+
+                flash_notice('Your password has been changed successfully.', 'success');
+            } catch (\Throwable $e) {
+                report($e);
+                flash_notice('Unable to change your password. Please try again.', 'error');
+            }
         }
 
         return redirect()->back();
