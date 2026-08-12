@@ -54,6 +54,7 @@ jobs:
             **/node_modules/**
             **/.env
             **/.env.*
+            **/.htaccess
             **/storage/logs/**
             **/storage/framework/cache/**
             **/storage/framework/sessions/**
