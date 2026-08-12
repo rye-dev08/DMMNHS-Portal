@@ -52,7 +52,7 @@
             @foreach ([
                 'student' => ['Student', 'Enrolled learners with class schedule & grades.'],
                 'teacher' => ['Teacher', 'Manages subjects, grades & enrollment.'],
-                'office_admin' => ['Office Administrator', 'Academic calendar, announcements, IDs & requirements.'],
+                'office_admin' => ['Office Administrator', 'Academic calendar, announcements & requirements.'],
                 'system_admin' => ['System Administrator', 'Full control over accounts & settings.'],
             ] as $val => [$rlabel, $desc])
                 <label class="relative flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition {{ old('role', 'student') === $val ? 'border-[#0018f9]/60 bg-[#0018f9]/5 shadow-[0_0_0_1px_rgba(0,24,249,0.35)]' : 'border-slate-200 bg-white hover:border-[#0018f9]/30' }}">

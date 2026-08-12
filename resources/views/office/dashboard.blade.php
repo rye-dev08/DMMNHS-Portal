@@ -8,7 +8,7 @@
             <div class="relative z-10">
                 <p class="text-[12px] font-semibold uppercase tracking-[0.18em] text-white/55">Office Administrator Dashboard</p>
                 <h2 class="m-0 mt-1 text-2xl font-bold">Welcome, {{ auth()->user()->name }}</h2>
-                <p class="mt-1.5 text-[13.5px] text-white/70">Academic calendar, announcements, IDs, and school-wide requirement tracking.</p>
+                <p class="mt-1.5 text-[13.5px] text-white/70">Academic calendar, announcements, and school-wide requirement tracking.</p>
             </div>
         </div>
 

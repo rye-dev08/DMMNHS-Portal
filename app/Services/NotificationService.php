@@ -21,13 +21,13 @@ use Illuminate\Support\Facades\DB;
  * Channel rules:
  *   - Student (portal + email): password changed, enrollment approved/rejected,
  *     all grades complete, enrollment phase opened, new school year started,
- *     password reset, welcome email, email verification, digital ID generated.
+ *     password reset, welcome email, email verification.
  *   - Teacher (portal + email): new enrollment request, advisory class
  *     assigned/changed, password changed.
  *   - Portal only: grade submitted/updated, profile/info updated, subject
  *     added/removed, phase closed, term changed, account info updated,
  *     calendar events, announcements, requirement submissions,
- *     grade submission completion/overdue, digital ID updates,
+ *     grade submission completion/overdue,
  *     subject assignment updates, enrollment phase changes.
  *   - Admins never receive notifications or emails.
  */
@@ -826,51 +826,6 @@ class NotificationService
             'message' => "Grade submission for {$subjectLabel} (Term {$term}, {$schoolYear}) is now overdue.",
             'kind' => 'error',
             'link' => route('teacher.grade-submissions'),
-        ]);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Digital Student ID events
-    |--------------------------------------------------------------------------
-    */
-
-    public function digitalIdGenerated(int $studentId): void
-    {
-        $student = $this->studentUser($studentId);
-
-        if (! $student) {
-            return;
-        }
-
-        $this->send($student, [
-            'title' => 'Digital Student ID Generated',
-            'message' => 'Your digital student ID has been generated and is ready to use.',
-            'kind' => 'success',
-            'link' => route('student.digital-id'),
-            'subject' => 'Your Digital Student ID Is Ready',
-            'lines' => [
-                'Your digital student ID has been generated.',
-                'You can view and share it from the Digital ID page.',
-            ],
-            'action_text' => 'View Digital ID',
-            'action_url' => route('student.digital-id'),
-        ], true);
-    }
-
-    public function digitalIdUpdated(int $studentId): void
-    {
-        $student = $this->studentUser($studentId);
-
-        if (! $student) {
-            return;
-        }
-
-        $this->safeSend($student, [
-            'title' => 'Digital Student ID Updated',
-            'message' => 'Your digital student ID has been updated.',
-            'kind' => 'success',
-            'link' => route('student.digital-id'),
         ]);
     }
 

@@ -208,7 +208,6 @@ class StudentTimelineTest extends TestCase
             ->assertOk()
             ->assertSee('My Academic Journey', false)
             ->assertSee('Student Account Activated')
-            ->assertSee('Digital Student ID Generated')
             ->assertSee('Enrollment Submitted')
             ->assertSee('Enrollment Approved')
             ->assertSee('Teacher Assigned')

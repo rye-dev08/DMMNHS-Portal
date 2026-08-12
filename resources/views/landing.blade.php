@@ -15,12 +15,6 @@
             'accent' => 'from-[#38bdf8] to-[#2563eb]',
         ],
         [
-            'title' => 'Digital Student ID',
-            'description' => 'A secure, scannable digital ID with a unique token, instantly verifiable by the school.',
-            'icon' => 'id',
-            'accent' => 'from-[#818cf8] to-[#6366f1]',
-        ],
-        [
             'title' => 'Requirement & Submission Tracker',
             'description' => 'Monitor assignments, school forms, and project submissions with clear status updates.',
             'icon' => 'clipboard',
@@ -63,7 +57,7 @@
             'title' => 'Student',
             'icon' => 'person',
             'accent' => 'from-[#38bdf8] to-[#2563eb]',
-            'items' => ['Enrollment', 'Grades', 'Digital ID', 'Requirements'],
+            'items' => ['Enrollment', 'Grades', 'Class Schedule', 'Requirements'],
         ],
         [
             'title' => 'Teacher',
@@ -75,7 +69,7 @@
             'title' => 'Office Administrator',
             'icon' => 'sliders',
             'accent' => 'from-[#fbbf24] to-[#f59e0b]',
-            'items' => ['Academic Calendar', 'Announcements', 'Teacher Assignment', 'Message Center', 'Digital Student ID'],
+            'items' => ['Academic Calendar', 'Announcements', 'Teacher Assignment', 'Message Center', 'Requirement Tracking'],
         ],
         [
             'title' => 'System Administrator',

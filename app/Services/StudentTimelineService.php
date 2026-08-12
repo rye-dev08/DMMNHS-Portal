@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\DB;
  *   - Enrollment (enrollment_requests)
  *   - Grade management (grades + subjects)
  *   - Requirement & Submission Tracker (requirements, requirement_submissions)
- *   - Digital Student ID (students.id_token / id_token_generated_at)
  *   - Academic Calendar (academic_calendar_events)
  *   - Announcements (announcements feed)
  *   - Assessment scores (activity / quiz / exam)
@@ -76,7 +75,6 @@ class StudentTimelineService
 
         $events = collect()
             ->merge($this->accountEvents($user))
-            ->merge($this->digitalIdEvents($student, $user))
             ->merge($this->enrollmentEvents($studentId, $user, $schoolYear))
             ->merge($this->subjectEvents($studentId, $schoolYear))
             ->merge($this->requirementEvents($studentId))
@@ -229,38 +227,6 @@ class StudentTimelineService
                 route('student.dashboard'),
                 'Open Dashboard',
                 'person'
-            ),
-        ]);
-    }
-
-    private function digitalIdEvents(Student $student, User $user): Collection
-    {
-        $period = Setting::find(1)?->period();
-
-        if ($student->id_token_generated_at === null && $student->student_id_no === null) {
-            return collect();
-        }
-
-        $at = $student->id_token_generated_at
-            ? $student->id_token_generated_at->toImmutable()
-            : $user->created_at?->toImmutable();
-
-        if ($at === null) {
-            return collect();
-        }
-
-        return collect([
-            $this->makeEvent(
-                'digital_id_generated',
-                self::CATEGORY_DOCUMENTS,
-                'Digital Student ID Generated',
-                'Your digital student ID was generated and is ready to scan.',
-                $at,
-                (string) ($period->school_year ?? ''),
-                null,
-                route('student.digital-id'),
-                'View Digital ID',
-                'id'
             ),
         ]);
     }

@@ -9,7 +9,6 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfficeAdmin\AcademicCalendarController as OfficeAcademicCalendarController;
 use App\Http\Controllers\OfficeAdmin\AnnouncementController as OfficeAnnouncementController;
 use App\Http\Controllers\OfficeAdmin\DashboardController as OfficeDashboardController;
-use App\Http\Controllers\OfficeAdmin\DigitalIdController as OfficeDigitalIdController;
 use App\Http\Controllers\OfficeAdmin\GradeSubmissionMonitorController as OfficeGradeSubmissionMonitorController;
 use App\Http\Controllers\OfficeAdmin\MessageCenterController as OfficeMessageCenterController;
 use App\Http\Controllers\OfficeAdmin\RequirementController as OfficeRequirementController;
@@ -18,14 +17,12 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\PollController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
-use App\Http\Controllers\Student\DigitalIdController as StudentDigitalIdController;
 use App\Http\Controllers\Student\EnrollmentController as StudentEnrollmentController;
 use App\Http\Controllers\Student\GradeController as StudentGradeController;
 use App\Http\Controllers\Student\RequirementController as StudentRequirementController;
 use App\Http\Controllers\Student\ScheduleController;
 use App\Http\Controllers\Student\StudentInfoController;
 use App\Http\Controllers\Student\TimelineController as StudentTimelineController;
-use App\Http\Controllers\StudentVerificationController;
 use App\Http\Controllers\SystemAdmin\AccountController;
 use App\Http\Controllers\SystemAdmin\DashboardController as SystemAdminDashboardController;
 use App\Http\Controllers\SystemAdmin\EnrollmentSettingController;
@@ -54,9 +51,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::post('/contact', [PageController::class, 'submitContact'])->name('contact.submit')->middleware('throttle:contact');
-
-// Public student ID verification (opened by scanning a digital ID QR code).
-Route::get('/verify/student/{token}', [StudentVerificationController::class, 'show'])->name('verify.student');
 
 /*
 |--------------------------------------------------------------------------
@@ -121,10 +115,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/announcements/{announcement}', [OfficeAnnouncementController::class, 'update'])->name('announcements.update');
         Route::post('/announcements/{announcement}/toggle-status', [OfficeAnnouncementController::class, 'toggleStatus'])->name('announcements.toggle-status');
         Route::delete('/announcements/{announcement}', [OfficeAnnouncementController::class, 'destroy'])->name('announcements.destroy');
-        Route::get('/digital-ids', [OfficeDigitalIdController::class, 'index'])->name('digital-ids');
-        Route::get('/digital-ids/{student}', [OfficeDigitalIdController::class, 'show'])->name('digital-ids.show');
-        Route::post('/digital-ids/{student}/regenerate', [OfficeDigitalIdController::class, 'regenerate'])->name('digital-ids.regenerate');
-        Route::post('/digital-ids/{student}/revoke', [OfficeDigitalIdController::class, 'revoke'])->name('digital-ids.revoke');
         Route::get('/message-center', [OfficeMessageCenterController::class, 'index'])->name('message-center');
         Route::get('/message-center/blocked-senders', [OfficeMessageCenterController::class, 'blockedSenders'])->name('message-center.blocked');
         Route::post('/messages/{message}/valid', [OfficeMessageCenterController::class, 'markValid'])->name('messages.valid');
@@ -187,8 +177,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/enrollment', [StudentEnrollmentController::class, 'index'])->name('enrollment');
         Route::post('/enrollment', [StudentEnrollmentController::class, 'store'])->name('enrollment.store');
         Route::get('/academic-calendar', [AcademicCalendarController::class, 'index'])->name('calendar');
-        Route::get('/digital-id', [StudentDigitalIdController::class, 'show'])->name('digital-id');
-        Route::post('/digital-id/photo', [StudentDigitalIdController::class, 'uploadPhoto'])->name('digital-id.photo');
         Route::get('/requirements', [StudentRequirementController::class, 'index'])->name('requirements');
         Route::get('/requirements/{requirement}', [StudentRequirementController::class, 'show'])->name('requirements.show');
         Route::post('/requirements/{requirement}/submit', [StudentRequirementController::class, 'submit'])->name('requirements.submit');

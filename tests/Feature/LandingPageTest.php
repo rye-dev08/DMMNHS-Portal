@@ -90,7 +90,6 @@ class LandingPageTest extends TestCase
             ->assertSee('Learn More')
             ->assertSee('Why this Portal?')
             ->assertSee('Academic Calendar')
-            ->assertSee('Digital Student ID')
             ->assertSee('Requirement & Submission Tracker')
             ->assertSee('Announcements')
             ->assertSee('Messaging')

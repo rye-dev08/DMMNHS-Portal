@@ -43,7 +43,6 @@
             ['label' => 'Dashboard', 'route' => 'office.dashboard', 'icon' => 'grid'],
             ['label' => 'Academic Calendar', 'route' => 'office.academic-calendar', 'icon' => 'calendar'],
             ['label' => 'Announcements', 'route' => 'office.announcements', 'icon' => 'bell'],
-            ['label' => 'Student Digital IDs', 'route' => 'office.digital-ids', 'icon' => 'id'],
             ['label' => 'Teacher Advisory', 'route' => 'office.teacher-advisory', 'icon' => 'book'],
             ['label' => 'Assign Class', 'route' => 'office.assign-class', 'icon' => 'badge'],
             ['label' => 'Grade Submissions', 'route' => 'office.grade-submissions', 'icon' => 'tick'],
@@ -63,7 +62,6 @@
         ],
         'student' => [
             ['label' => 'Dashboard', 'route' => 'student.dashboard', 'icon' => 'grid'],
-            ['label' => 'Digital ID', 'route' => 'student.digital-id', 'icon' => 'id'],
             ['label' => 'Class Schedule', 'route' => 'student.schedule', 'icon' => 'calendar'],
             ['label' => 'Academic Calendar', 'route' => 'student.calendar', 'icon' => 'calendar'],
             ['label' => 'Announcements', 'route' => 'announcements', 'icon' => 'bell'],

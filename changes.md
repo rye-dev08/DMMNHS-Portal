@@ -964,3 +964,31 @@ Comprehensive UX audit across all modules: extended the global form validator to
 ### Notes
 - Existing `data-confirm` modal confirmations (accounts, calendar, announcements, enrollment requests, requirements, submissions, message center, digital IDs) and the submit-button loading state were already in place and confirmed wired on `DOMContentLoaded`.
 - Login uses username, not email. Demo passwords: office Office123!, others Demo123!.
+
+---
+
+## DMMNHS-V.2.19 - Remove Digital Student ID Feature
+
+**Date:** 2026-08-12
+
+### Summary
+Removed the entire Digital Student ID feature (introduced in V.2.9) at the request of the project owner, including its pages, backend, notifications, timeline events, database columns, tests and the QR dependency.
+
+### Files Changed
+- Deleted `app/Http/Controllers/Student/DigitalIdController.php`, `app/Http/Controllers/OfficeAdmin/DigitalIdController.php`, `app/Http/Controllers/StudentVerificationController.php`, `app/Services/DigitalIdService.php`.
+- Deleted views `resources/views/student/digital_id.blade.php`, `resources/views/office/digital_ids.blade.php`, `resources/views/office/digital_id_show.blade.php`, `resources/views/verify/student.blade.php`, `resources/views/digital_id/card.blade.php`.
+- `routes/web.php` - removed `verify.student`, `office.digital-ids*` and `student.digital-id*` routes + related controller imports.
+- `resources/views/components/layouts/sidebar.blade.php` - removed "Student Digital IDs" and "Digital ID" menu items.
+- `app/Services/NotificationService.php` - removed `digitalIdGenerated()` / `digitalIdUpdated()`.
+- `app/Services/StudentTimelineService.php` - removed the Digital Student ID timeline event and its merge call.
+- `app/Models/Student.php` - removed `student_id_no`, `id_token`, `id_token_generated_at`, `photo` from `$fillable`/casts.
+- `database/migrations/2026_08_06_000005_add_digital_id_fields_to_students_table.php` - deleted; added `2026_08_12_000001_drop_digital_id_fields_from_students_table.php` to drop the columns (guarded, no-op on fresh DBs).
+- `resources/views/landing.blade.php`, `resources/views/admin/dashboard.blade.php` - removed Digital ID mentions.
+- `composer.json` / `composer.lock` - removed `simplesoftwareio/simple-qrcode`.
+- Deleted `tests/Feature/DigitalIdTest.php`; updated `StudentTimelineTest` and `LandingPageTest`.
+
+### Verification
+- `php artisan test` - full suite 149/149 passing (697 assertions).
+- `php artisan route:list --name=digital` / `--name=verify` - no matching routes.
+- `php artisan view:clear` - compiled views cleared.
+- NOTE: the drop migration could not be run locally because MySQL (Laragon) was not running; run `php artisan migrate` once the DB service is up.

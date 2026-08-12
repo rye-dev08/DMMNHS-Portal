@@ -75,7 +75,7 @@
 
             <x-card :title="'Office Operations'">
                 <p class="m-0 text-[13px] leading-relaxed text-slate-600">
-                    Day-to-day academic operations — calendar, announcements, message review, digital IDs, and
+                    Day-to-day academic operations — calendar, announcements, message review, and
                     requirement tracking — are handled by the <strong class="text-[#0a1633]">Office Administrator</strong> role.
                 </p>
             </x-card>
