@@ -50,6 +50,8 @@ jobs:
           log-level: standard
 
           exclude: |
+            .htaccess
+            **/.htaccess
             **/.git*
             **/.git*/**
             **/.github/**
