@@ -46,15 +46,18 @@ jobs:
           port: 21
           protocol: ftp
           server-dir: ./
-          log-level: verbose
+          state-name: .github/ftp-deploy-sync-state.json
+          log-level: standard
 
           exclude: |
             **/.git*
             **/.git*/**
+            **/.github/**
             **/node_modules/**
             **/.env
             **/.env.*
-            **/.htaccess
+            **/tests/**
+            **/*.md
             **/storage/logs/**
             **/storage/framework/cache/**
             **/storage/framework/sessions/**
